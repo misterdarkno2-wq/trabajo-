@@ -1,8 +1,12 @@
 # 1. Boceto inicial (a mano alzada)
 
-![Boceto a mano](../diagramas/boceto-a-mano.svg)
+## Boceto original (hecho a mano)
 
-> **Nota:** este boceto es una versión digital con estilo de dibujo a mano. Si la pauta exige que el boceto esté hecho físicamente a mano, cópialo en papel tal cual (son 4 capas: usuarios → nube Cloudflare → 3 regiones → datos y backups), sácale una foto y guárdala como `diagramas/boceto-a-mano.jpg`.
+![Boceto hecho a mano](../diagramas/boceto-a-mano-foto.jpg)
+
+## Versión digitalizada
+
+![Boceto digitalizado](../diagramas/boceto-a-mano.svg)
 
 ## Cómo leer el boceto (de arriba hacia abajo)
 

@@ -27,7 +27,7 @@ Diseño de arquitectura para una aplicación web donde **miles de usuarios pinta
 
 ## Boceto a mano
 
-![Boceto](diagramas/boceto-a-mano.svg)
+![Boceto hecho a mano](diagramas/boceto-a-mano-foto.jpg)
 
 ## Esquema final
 
