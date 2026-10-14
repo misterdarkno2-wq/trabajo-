@@ -1,0 +1,208 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 1120" width="1400" height="1120">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#334155"/>
+    </marker>
+    <marker id="ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#2563eb"/>
+    </marker>
+    <marker id="ag" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10 z" fill="#059669"/>
+    </marker>
+  </defs>
+  <style>
+    text { font-family: Inter, "Segoe UI", Helvetica, Arial, sans-serif; fill: #0f172a; }
+    .t  { font-size: 26px; font-weight: 700; }
+    .st { font-size: 14px; fill: #475569; }
+    .lbl{ font-size: 12px; font-weight: 700; letter-spacing: .08em; fill: #64748b; }
+    .h  { font-size: 15px; font-weight: 700; }
+    .n  { font-size: 12.5px; fill: #334155; }
+    .s  { font-size: 11.5px; fill: #475569; }
+    .w  { fill: #ffffff; }
+    .box  { fill: #ffffff; stroke: #cbd5e1; stroke-width: 1.5; }
+    .svc  { fill: #eff6ff; stroke: #3b82f6; stroke-width: 1.5; }
+    .data { fill: #ecfdf5; stroke: #10b981; stroke-width: 1.5; }
+    .msg  { fill: #fef3c7; stroke: #f59e0b; stroke-width: 1.5; }
+    .bak  { fill: #fdf2f8; stroke: #db2777; stroke-width: 1.5; }
+    .obs  { fill: #f1f5f9; stroke: #94a3b8; stroke-width: 1.5; }
+    .ln   { stroke: #334155; stroke-width: 1.6; fill: none; }
+    .lnb  { stroke: #2563eb; stroke-width: 2; fill: none; stroke-dasharray: 7 5; }
+    .lng  { stroke: #059669; stroke-width: 2; fill: none; stroke-dasharray: 7 5; }
+  </style>
+
+  <rect width="1400" height="1120" fill="#f8fafc"/>
+
+  <!-- Título -->
+  <text x="40" y="48" class="t">Esquema final: PixelArt colaborativo global</text>
+  <text x="40" y="72" class="st">Multi-región activo-activo · SLO 99,9% · p95 &lt; 100 ms local / &lt; 300 ms global · RPO ≤ 5 min · RTO ≤ 5 min (región)</text>
+
+  <!-- CAPA 1: CLIENTES -->
+  <text x="40" y="112" class="lbl">1 · CLIENTE</text>
+  <rect x="40" y="122" width="1320" height="70" rx="10" class="box"/>
+  <rect x="60" y="134" width="420" height="46" rx="8" class="svc"/>
+  <text x="74" y="154" class="h">SPA TypeScript + React + Canvas/WebGL</text>
+  <text x="74" y="172" class="s">Carga snapshot PNG desde CDN + aplica diffs por WebSocket</text>
+  <rect x="500" y="134" width="400" height="46" rx="8" class="svc"/>
+  <text x="514" y="154" class="h">Login OIDC (Google / Discord) → JWT</text>
+  <text x="514" y="172" class="s">Validado sin estado en el gateway (sin consultar DB)</text>
+  <rect x="920" y="134" width="420" height="46" rx="8" class="svc"/>
+  <text x="934" y="154" class="h">Reconexión automática con backoff + jitter</text>
+  <text x="934" y="172" class="s">Cola local de pixel pendiente · reintento idempotente (id único)</text>
+
+  <path d="M700 192 V 222" class="ln" marker-end="url(#a)"/>
+
+  <!-- CAPA 2: BORDE -->
+  <text x="40" y="240" class="lbl">2 · BORDE GLOBAL (CLOUDFLARE, 300+ PoP)</text>
+  <rect x="40" y="250" width="1320" height="76" rx="10" class="box"/>
+  <rect x="60" y="262" width="310" height="52" rx="8" class="svc"/>
+  <text x="74" y="283" class="h">DNS Anycast + Load Balancer</text>
+  <text x="74" y="302" class="s">Ruteo por latencia · health check c/10 s</text>
+  <rect x="385" y="262" width="310" height="52" rx="8" class="svc"/>
+  <text x="399" y="283" class="h">CDN</text>
+  <text x="399" y="302" class="s">SPA estática + snapshot del lienzo (TTL 5 s)</text>
+  <rect x="710" y="262" width="310" height="52" rx="8" class="svc"/>
+  <text x="724" y="283" class="h">WAF + DDoS + Rate limiting</text>
+  <text x="724" y="302" class="s">Turnstile anti-bots · límite por IP</text>
+  <rect x="1035" y="262" width="305" height="52" rx="8" class="svc"/>
+  <text x="1049" y="283" class="h">TLS 1.3 en el borde</text>
+  <text x="1049" y="302" class="s">WebSocket proxied hacia el origen</text>
+
+  <path d="M760 326 V 376" class="ln" marker-end="url(#a)"/>
+  <text x="770" y="354" class="s">wss:// a la región más cercana</text>
+  <path d="M1300 326 V 376" class="ln" marker-end="url(#a)"/>
+  <text x="1170" y="346" class="s">failover automático</text>
+
+  <!-- CAPA 3: REGIÓN DETALLADA -->
+  <text x="40" y="368" class="lbl">3 · REGIÓN (EJ. sa-east-1 SÃO PAULO) · KUBERNETES EN 3 ZONAS</text>
+  <rect x="40" y="378" width="930" height="470" rx="12" class="box"/>
+
+  <!-- Fila de servicios -->
+  <rect x="60" y="396" width="890" height="40" rx="8" class="obs"/>
+  <text x="76" y="421" class="h">Network Load Balancer (L4) multi-AZ</text>
+  <text x="420" y="421" class="s">reparte conexiones WebSocket entre pods en 3 zonas de disponibilidad</text>
+  <path d="M290 436 V 458" class="ln" marker-end="url(#a)"/>
+
+  <rect x="60" y="460" width="290" height="92" rx="8" class="svc"/>
+  <text x="74" y="482" class="h">ws-gateway (Go)</text>
+  <text x="74" y="501" class="n">~50k conexiones por pod</text>
+  <text x="74" y="518" class="s">Valida JWT · difusión por lotes c/100 ms</text>
+  <text x="74" y="535" class="s">HPA por nº de conexiones · sin estado</text>
+
+  <rect x="370" y="460" width="280" height="92" rx="8" class="svc"/>
+  <text x="384" y="482" class="h">pixel-service (Go)</text>
+  <text x="384" y="501" class="n">Valida x, y, color, cooldown</text>
+  <text x="384" y="518" class="s">Script Lua atómico en Redis</text>
+  <text x="384" y="535" class="s">Publica evento → NATS</text>
+
+  <rect x="670" y="460" width="280" height="92" rx="8" class="svc"/>
+  <text x="684" y="482" class="h">canvas-applier (Go)</text>
+  <text x="684" y="501" class="n">Consume eventos de TODAS</text>
+  <text x="684" y="518" class="s">las regiones → actualiza Redis</text>
+  <text x="684" y="535" class="s">local (LWW por timestamp)</text>
+
+  <path d="M350 506 H 368" class="ln" marker-end="url(#a)"/>
+
+  <rect x="60" y="568" width="430" height="58" rx="8" class="svc"/>
+  <text x="74" y="590" class="h">persister (Go)</text>
+  <text x="74" y="609" class="s">Escribe eventos en ScyllaDB en lotes (LOCAL_QUORUM)</text>
+
+  <rect x="510" y="568" width="440" height="58" rx="8" class="svc"/>
+  <text x="524" y="590" class="h">snapshotter (Go)</text>
+  <text x="524" y="609" class="s">Cada 5 s → PNG al CDN · cada 5 min → backup a S3</text>
+
+  <!-- Fila de datos -->
+  <rect x="60" y="644" width="290" height="120" rx="8" class="data"/>
+  <text x="74" y="666" class="h">Redis / Valkey Cluster</text>
+  <text x="74" y="685" class="n">Estado CALIENTE (memoria)</text>
+  <text x="74" y="703" class="s">· Lienzo BITFIELD 2000×2000 (4 MB)</text>
+  <text x="74" y="719" class="s">· Cooldown usuario (SET NX EX 300)</text>
+  <text x="74" y="735" class="s">· Pub/Sub local a los gateways</text>
+  <text x="74" y="751" class="s">· 3 primarios + 3 réplicas (multi-AZ)</text>
+
+  <rect x="370" y="644" width="280" height="120" rx="8" class="msg"/>
+  <text x="384" y="666" class="h">NATS JetStream</text>
+  <text x="384" y="685" class="n">Bus de eventos de pixel</text>
+  <text x="384" y="703" class="s">· Cluster 3 nodos (RAFT)</text>
+  <text x="384" y="719" class="s">· Super-cluster entre regiones</text>
+  <text x="384" y="735" class="s">· Retención 7 días → replay</text>
+  <text x="384" y="751" class="s">· Desacopla escritura de DB</text>
+
+  <rect x="670" y="644" width="280" height="120" rx="8" class="data"/>
+  <text x="684" y="666" class="h">ScyllaDB (DC local)</text>
+  <text x="684" y="685" class="n">Estado DURABLE</text>
+  <text x="684" y="703" class="s">· 3 nodos, RF=3 (1 por AZ)</text>
+  <text x="684" y="719" class="s">· pixel_events, pixel_state,</text>
+  <text x="684" y="735" class="s">  users, bans</text>
+  <text x="684" y="751" class="s">· Sin maestro: escribe cualquier nodo</text>
+
+  <!-- flechas internas -->
+  <path d="M500 552 V 642" class="ln" marker-end="url(#a)"/>
+  <path d="M650 700 H 668" class="ln" marker-end="url(#a)"/>
+
+  <rect x="60" y="780" width="890" height="52" rx="8" class="obs"/>
+  <text x="76" y="802" class="h">Observabilidad y operación</text>
+  <text x="76" y="820" class="s">OpenTelemetry · Prometheus + Grafana (SLO/error budget) · Loki · Alertmanager → PagerDuty · ArgoCD (GitOps) · Terraform (IaC)</text>
+
+  <!-- OTRAS REGIONES -->
+  <text x="1000" y="368" class="lbl">RÉPLICAS ACTIVAS (MISMO STACK)</text>
+  <rect x="1000" y="378" width="360" height="130" rx="12" class="box"/>
+  <text x="1018" y="404" class="h">us-east-1 · Virginia</text>
+  <text x="1018" y="424" class="s">servicios Go</text>
+  <rect x="1018" y="436" width="100" height="56" rx="6" class="data"/><text x="1030" y="469" class="n">Redis</text>
+  <rect x="1130" y="436" width="100" height="56" rx="6" class="msg"/><text x="1145" y="469" class="n">NATS</text>
+  <rect x="1242" y="436" width="100" height="56" rx="6" class="data"/><text x="1252" y="469" class="n">Scylla DC</text>
+
+  <rect x="1000" y="524" width="360" height="130" rx="12" class="box"/>
+  <text x="1018" y="550" class="h">eu-west-1 · Irlanda</text>
+  <text x="1018" y="570" class="s">servicios Go</text>
+  <rect x="1018" y="582" width="100" height="56" rx="6" class="data"/><text x="1030" y="615" class="n">Redis</text>
+  <rect x="1130" y="582" width="100" height="56" rx="6" class="msg"/><text x="1145" y="615" class="n">NATS</text>
+  <rect x="1242" y="582" width="100" height="56" rx="6" class="data"/><text x="1252" y="615" class="n">Scylla DC</text>
+
+  <rect x="1000" y="670" width="360" height="130" rx="12" class="box"/>
+  <text x="1018" y="696" class="h">ap-northeast-1 · Tokio</text>
+  <text x="1018" y="716" class="s">servicios Go</text>
+  <rect x="1018" y="728" width="100" height="56" rx="6" class="data"/><text x="1030" y="761" class="n">Redis</text>
+  <rect x="1130" y="728" width="100" height="56" rx="6" class="msg"/><text x="1145" y="761" class="n">NATS</text>
+  <rect x="1242" y="728" width="100" height="56" rx="6" class="data"/><text x="1252" y="761" class="n">Scylla DC</text>
+
+  <!-- Replicación inter-región -->
+  <path d="M972 676 C 986 676, 986 600, 998 600" class="lnb" marker-start="url(#ab)" marker-end="url(#ab)"/>
+  <path d="M1180 492 V 580" class="lnb" marker-start="url(#ab)" marker-end="url(#ab)"/>
+  <path d="M1180 638 V 726" class="lnb" marker-start="url(#ab)" marker-end="url(#ab)"/>
+  <path d="M972 730 C 986 730, 986 760, 998 760" class="lng" marker-start="url(#ag)" marker-end="url(#ag)"/>
+  <path d="M1292 638 V 726" class="lng" marker-start="url(#ag)" marker-end="url(#ag)"/>
+  <path d="M1292 492 V 580" class="lng" marker-start="url(#ag)" marker-end="url(#ag)"/>
+  <text x="1000" y="842" class="s" style="fill:#2563eb">— — NATS gateways: eventos a todas las regiones (~100–200 ms)</text>
+  <text x="1000" y="860" class="s" style="fill:#059669">— — Scylla: replicación multi-DC asíncrona</text>
+
+  <!-- CAPA 4: BACKUPS -->
+  <text x="40" y="892" class="lbl">4 · COPIAS DE SEGURIDAD Y RECUPERACIÓN (REGLA 3-2-1)</text>
+  <rect x="40" y="902" width="1320" height="128" rx="10" class="box"/>
+  <rect x="60" y="916" width="310" height="100" rx="8" class="bak"/>
+  <text x="74" y="938" class="h">Snapshots del lienzo</text>
+  <text x="74" y="958" class="s">PNG + binario cada 5 min → S3</text>
+  <text x="74" y="975" class="s">RPO del lienzo ≤ 5 min</text>
+  <text x="74" y="992" class="s">Restauración: cargar a Redis en segundos</text>
+  <rect x="385" y="916" width="310" height="100" rx="8" class="bak"/>
+  <text x="399" y="938" class="h">Scylla Manager</text>
+  <text x="399" y="958" class="s">Snapshot completo diario</text>
+  <text x="399" y="975" class="s">Backup incremental cada hora</text>
+  <text x="399" y="992" class="s">Retención 30 días</text>
+  <rect x="710" y="916" width="310" height="100" rx="8" class="bak"/>
+  <text x="724" y="938" class="h">S3 inmutable</text>
+  <text x="724" y="958" class="s">Versionado + Object Lock (anti-ransomware)</text>
+  <text x="724" y="975" class="s">Replicación cross-region (CRR)</text>
+  <text x="724" y="992" class="s">Cifrado KMS en reposo</text>
+  <rect x="1035" y="916" width="305" height="100" rx="8" class="bak"/>
+  <text x="1049" y="938" class="h">Event sourcing</text>
+  <text x="1049" y="958" class="s">Cada pixel es un evento inmutable</text>
+  <text x="1049" y="975" class="s">Reconstrucción a cualquier instante</text>
+  <text x="1049" y="992" class="s">Simulacro de restore mensual</text>
+
+  <!-- Pie -->
+  <rect x="40" y="1046" width="1320" height="56" rx="10" fill="#0f172a"/>
+  <text x="60" y="1070" class="h w">Degradación elegante:</text>
+  <text x="240" y="1070" class="n w" style="fill:#e2e8f0">si cae una región → DNS la saca en &lt; 30 s · si cae la DB → se sigue pintando (cola NATS) · si cae NATS → modo solo lectura desde CDN</text>
+  <text x="60" y="1090" class="s" style="fill:#94a3b8">Leyenda: azul = servicio sin estado · verde = datos · amarillo = mensajería · rosa = backups · gris = plataforma</text>
+</svg>

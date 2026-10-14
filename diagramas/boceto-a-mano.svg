@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 860" width="1100" height="860">
+  <defs>
+    <!-- Filtro que "tiembla" los trazos para simular dibujo a mano alzada -->
+    <filter id="mano" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="7" result="ruido"/>
+      <feDisplacementMap in="SourceGraphic" in2="ruido" scale="3.5"/>
+    </filter>
+    <pattern id="cuaderno" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M0 27.5 H28" stroke="#c9d8ea" stroke-width="1"/>
+    </pattern>
+    <marker id="flecha" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10" fill="none" stroke="#1f2a44" stroke-width="1.6"/>
+    </marker>
+    <marker id="flechaR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+      <path d="M0 0 L10 5 L0 10" fill="none" stroke="#c0392b" stroke-width="1.6"/>
+    </marker>
+  </defs>
+
+  <style>
+    text { font-family: "Segoe Print", "Comic Sans MS", "Bradley Hand", "Chalkboard SE", cursive; fill: #1f2a44; }
+    .t  { font-size: 26px; font-weight: bold; }
+    .h  { font-size: 17px; font-weight: bold; }
+    .n  { font-size: 14px; }
+    .s  { font-size: 12.5px; }
+    .rojo { fill: #c0392b; }
+    .azul { fill: #1d5fa8; }
+    .trazo { fill: none; stroke: #1f2a44; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .resalta { fill: #fff3a8; opacity: .75; }
+  </style>
+
+  <!-- Hoja de cuaderno -->
+  <rect width="1100" height="860" fill="#fdfcf7"/>
+  <rect width="1100" height="860" fill="url(#cuaderno)"/>
+  <path d="M70 0 V860" stroke="#e8a3a3" stroke-width="1.5"/>
+
+  <g filter="url(#mano)">
+    <!-- Título -->
+    <text x="90" y="48" class="t">Boceto: PixelArt global (r/place)</text>
+    <path d="M88 58 C 250 64, 420 54, 520 60" class="trazo"/>
+    <text x="760" y="40" class="s">Req: 99,9% · baja latencia ·</text>
+    <text x="760" y="58" class="s">réplicas mundo · backups · resiliencia</text>
+
+    <!-- Usuarios (monitos) -->
+    <g class="trazo">
+      <circle cx="470" cy="95" r="10"/><path d="M470 105 V130 M455 115 H485 M470 130 L458 148 M470 130 L482 148"/>
+      <circle cx="550" cy="90" r="10"/><path d="M550 100 V125 M535 110 H565 M550 125 L538 143 M550 125 L562 143"/>
+      <circle cx="630" cy="95" r="10"/><path d="M630 105 V130 M615 115 H645 M630 130 L618 148 M630 130 L642 148"/>
+    </g>
+    <text x="665" y="105" class="n">miles de usuarios</text>
+    <text x="665" y="124" class="n">al mismo tiempo (navegador)</text>
+    <text x="665" y="143" class="s azul">WebSocket + Canvas</text>
+
+    <!-- Nube: Cloudflare -->
+    <path d="M380 245 C 340 245, 335 200, 375 195 C 370 160, 430 150, 450 175 C 470 140, 560 140, 575 172
+             C 600 150, 680 160, 670 198 C 720 200, 720 248, 675 248 Z" class="trazo" fill="#eef5ff"/>
+    <text x="420" y="203" class="h">Cloudflare (borde)</text>
+    <text x="398" y="226" class="s">DNS Anycast · CDN · WAF · DDoS</text>
+    <path d="M550 150 V168" class="trazo" marker-end="url(#flecha)"/>
+
+    <!-- nota roja nube -->
+    <text x="760" y="195" class="s rojo">la imagen del lienzo (PNG) sale</text>
+    <text x="760" y="212" class="s rojo">del CDN → no golpea al backend</text>
+    <path d="M755 205 C 730 205, 705 210, 690 215" fill="none" stroke="#c0392b" stroke-width="1.6" marker-end="url(#flechaR)"/>
+
+    <!-- flechas hacia regiones -->
+    <path d="M420 250 C 320 270, 220 285, 190 320" class="trazo" marker-end="url(#flecha)"/>
+    <path d="M530 252 V320" class="trazo" marker-end="url(#flecha)"/>
+    <path d="M640 250 C 750 270, 860 285, 900 320" class="trazo" marker-end="url(#flecha)"/>
+    <text x="545" y="292" class="s azul">va a la región más cercana</text>
+
+    <!-- Región 1 -->
+    <rect x="90" y="325" width="290" height="245" rx="10" class="trazo" fill="#ffffff"/>
+    <text x="105" y="350" class="h">Región América</text>
+    <text x="105" y="368" class="s">(São Paulo / Virginia)</text>
+    <rect x="110" y="380" width="250" height="34" class="trazo"/><text x="122" y="402" class="n">WS Gateway (Go) x N</text>
+    <rect x="110" y="425" width="250" height="34" class="trazo"/><text x="122" y="447" class="n">Pixel service (Go)</text>
+    <path d="M110 478 C 110 468, 360 468, 360 478 V 535 C 360 545, 110 545, 110 535 Z" class="trazo"/>
+    <path d="M110 478 C 110 488, 360 488, 360 478" class="trazo"/>
+    <text x="122" y="508" class="n">Redis: lienzo en bitfield</text>
+    <text x="122" y="527" class="s">+ cooldown 1 pixel/5 min</text>
+
+    <!-- Región 2 -->
+    <rect x="405" y="325" width="270" height="245" rx="10" class="trazo" fill="#ffffff"/>
+    <text x="420" y="350" class="h">Región Europa</text>
+    <text x="420" y="368" class="s">(Irlanda)</text>
+    <rect x="420" y="380" width="240" height="34" class="trazo"/><text x="432" y="402" class="n">WS Gateway (Go)</text>
+    <rect x="420" y="425" width="240" height="34" class="trazo"/><text x="432" y="447" class="n">Pixel service (Go)</text>
+    <path d="M420 478 C 420 468, 660 468, 660 478 V 535 C 660 545, 420 545, 420 535 Z" class="trazo"/>
+    <path d="M420 478 C 420 488, 660 488, 660 478" class="trazo"/>
+    <text x="432" y="512" class="n">Redis (copia local)</text>
+
+    <!-- Región 3 -->
+    <rect x="700" y="325" width="290" height="245" rx="10" class="trazo" fill="#ffffff"/>
+    <text x="715" y="350" class="h">Región Asia</text>
+    <text x="715" y="368" class="s">(Tokio)</text>
+    <rect x="720" y="380" width="250" height="34" class="trazo"/><text x="732" y="402" class="n">WS Gateway (Go)</text>
+    <rect x="720" y="425" width="250" height="34" class="trazo"/><text x="732" y="447" class="n">Pixel service (Go)</text>
+    <path d="M720 478 C 720 468, 970 468, 970 478 V 535 C 970 545, 720 545, 720 535 Z" class="trazo"/>
+    <path d="M720 478 C 720 488, 970 488, 970 478" class="trazo"/>
+    <text x="732" y="512" class="n">Redis (copia local)</text>
+
+    <text x="1000" y="440" class="s rojo">todas</text>
+    <text x="1000" y="456" class="s rojo">ACTIVAS</text>
+    <text x="1000" y="472" class="s rojo">a la vez</text>
+
+    <!-- Bus NATS entre regiones -->
+    <path d="M235 572 V 612 M540 572 V 612 M845 572 V 612" class="trazo"/>
+    <path d="M150 615 C 400 608, 700 622, 940 613" fill="none" stroke="#1d5fa8" stroke-width="3" stroke-dasharray="10 7"/>
+    <text x="200" y="645" class="n azul">NATS JetStream: cada pixel se publica como evento y llega a TODAS las regiones (~150 ms)</text>
+
+    <!-- Datos durables -->
+    <path d="M540 650 V 690" class="trazo" marker-end="url(#flecha)"/>
+    <path d="M300 705 C 300 692, 560 692, 560 705 V 790 C 560 803, 300 803, 300 790 Z" class="trazo" fill="#f3fff1"/>
+    <path d="M300 705 C 300 718, 560 718, 560 705" class="trazo"/>
+    <text x="318" y="745" class="h">ScyllaDB multi-región</text>
+    <text x="318" y="766" class="s">historial de cada pixel + usuarios</text>
+    <text x="318" y="784" class="s">sin maestro → escribe en cualquier DC</text>
+
+    <path d="M562 750 H 640" class="trazo" marker-end="url(#flecha)"/>
+    <path d="M650 705 L 670 800 H 880 L 900 705 Z" class="trazo" fill="#fff8ec"/>
+    <path d="M645 705 H 905" class="trazo"/>
+    <text x="680" y="735" class="h">S3 / R2 (backups)</text>
+    <text x="680" y="756" class="s">snapshot lienzo c/5 min</text>
+    <text x="680" y="773" class="s">backup DB diario + inmutable</text>
+    <text x="680" y="790" class="s">copiado a otra región</text>
+
+    <!-- Notas al margen -->
+    <rect x="92" y="815" width="430" height="26" class="resalta"/>
+    <text x="96" y="833" class="n rojo">si se cae 1 región → DNS manda a la siguiente</text>
+    <rect x="590" y="815" width="420" height="26" class="resalta"/>
+    <text x="594" y="833" class="n rojo">si se cae la DB → igual se ve el lienzo (solo lectura)</text>
+  </g>
+</svg>
