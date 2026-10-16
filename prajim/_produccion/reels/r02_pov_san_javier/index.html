@@ -5,11 +5,11 @@
   body { background: #2a1a12; }
   #shade { position: absolute; inset: 0; z-index: 2; }
   .emo { font-family: 'Noto Color Emoji'; font-style: normal; }
-  #pov { position: absolute; left: 70px; right: 70px; top: 282px; z-index: 10; color: #fff; text-align: center; }
-  #pov .k { font-family: 'Montserrat'; font-weight: 800; font-size: 34px; letter-spacing: .28em; color: #F1D9A6; }
-  #pov .s { font-family: 'Playfair Display'; font-size: 58px; line-height: 1.12; margin-top: 8px; text-shadow: 0 4px 24px rgba(0,0,0,.55); }
+  #pov { position: absolute; left: 70px; right: 70px; top: 272px; z-index: 10; color: #fff; text-align: center; }
+  #pov .k { font-family: 'Montserrat'; font-weight: 800; font-size: 30px; letter-spacing: .28em; color: #F1D9A6; }
+  #pov .s { font-family: 'Playfair Display'; font-size: 54px; line-height: 1.1; margin-top: 4px; text-shadow: 0 4px 24px rgba(0,0,0,.55); }
   #pov .s em { color: #F1D9A6; }
-  #card { position: absolute; left: 60px; top: 470px; width: 960px; height: 780px; z-index: 8; border-radius: 46px; overflow: hidden;
+  #card { position: absolute; left: 60px; top: 488px; width: 960px; height: 756px; z-index: 8; border-radius: 46px; overflow: hidden;
           background: rgba(251,247,241,.93); box-shadow: 0 30px 80px rgba(30,10,20,.45); transform-origin: 50% 70%; }
   #head { position: absolute; left: 0; right: 0; top: 0; height: 112px; background: #5E2560; display: flex; align-items: center; padding: 0 34px; gap: 22px; color: #fff; }
   #head .av { width: 70px; height: 70px; border-radius: 50%; background: #DDE3CF; display: flex; align-items: center; justify-content: center; font-size: 40px; }
@@ -50,6 +50,7 @@ const DUR = 17.2, TR = b(30), END = b(31);
 const te = new P.Seq(st, SP + 'te', { frames: 375 });
 const campo = new P.Seq(st, SP + 'campo', { frames: 180 });
 const shade = P.el('div', '', st); shade.id = 'shade';
+const golden = P.el('div', 'abs', st); P.style(golden, { inset: 0, zIndex: 3, mixBlendMode: 'soft-light', background: 'linear-gradient(180deg, rgba(255,160,80,.85) 0%, rgba(255,190,120,.55) 45%, rgba(255,140,90,.35) 100%)' });
 
 const pov = P.el('div', '', st); pov.id = 'pov';
 pov.innerHTML = '<div class="k">POV:</div><div class="s">descubres que en San Javier<br>hay <em>terapia floral</em></div>';
@@ -58,12 +59,12 @@ const povW = P.splitWords(pov.querySelector('.s'));
 const card = P.el('div', '', st); card.id = 'card';
 card.innerHTML = '<div id="head"><div class="av"><span class="emo">🌸</span></div><div><div class="nm">Amiga</div><div class="st">en línea</div></div></div><div id="msgs"></div>';
 const msgsEl = card.querySelector('#msgs');
-const AREA_BOTTOM = 668 - 26;  // alto del area de mensajes menos margen
+const AREA_BOTTOM = 644 - 26;  // alto del area de mensajes menos margen
 
 const E = (s) => s.replace(/(\p{Extended_Pictographic}+)/gu, '<span class="emo">$1</span>');
 const MSGS = [
-  { k: 1, who: 'a', txt: 'amigaaa 😱' },
-  { k: 3, who: 'a', txt: '¿sabías que en San Javier hay terapia floral? 🌸', typing: true },
+  { k: 0.35, who: 'a', txt: 'amigaaa 😱' },
+  { k: 2.6, who: 'a', txt: '¿sabías que en San Javier hay terapia floral? 🌸', typing: true },
   { k: 7, who: 'y', txt: '¿flores de Bach? 👀' },
   { k: 10, who: 'a', txt: '¡sí! y atiende a domicilio 🏡', typing: true },
   { k: 13, who: 'y', txt: '¿y si vivo lejos?' },
@@ -115,7 +116,7 @@ window.prepare = async function () {
 window.renderFrame = async function (t) {
   fx.clear();
   const inEnd = t >= END;
-  te.show(!inEnd); campo.show(inEnd);
+  te.show(!inEnd); campo.show(inEnd); golden.style.display = inEnd ? 'block' : 'none';
   if (!inEnd) {
     te.set(t, 1);
     te.img.style.filter = 'blur(5px) brightness(.82)';
@@ -132,9 +133,9 @@ window.renderFrame = async function (t) {
   const chatOn = t < END;
   pov.style.display = card.style.display = chatOn ? 'block' : 'none';
   if (chatOn) {
-    P.maskIn(povW, t, 0.0, { stagger: 0.04, dur: 0.45, ease: 'outExpo' });
-    pov.querySelector('.k').style.opacity = P.prog(t, 0, 0.15);
-    const ck = P.ease(t, 0.0, 0.35, 'outBack');
+    P.maskIn(povW, t, -0.3, { stagger: 0.04, dur: 0.45, ease: 'outExpo' });
+    pov.querySelector('.k').style.opacity = 1;
+    const ck = P.ease(t, -0.22, 0.13, 'outBack');
     // zoom hacia el contacto al final
     const zk = P.ease(t, TR - 0.15, END, 'inExpo');
     card.style.transform = `translateY(${(1 - ck) * 120 - zk * 120}px) scale(${(0.9 + 0.1 * ck) * (1 + zk * 1.8)})`;

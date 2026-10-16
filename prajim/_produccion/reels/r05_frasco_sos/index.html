@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  body { background: #2a0f2e; }
+  #shade { position: absolute; inset: 0; z-index: 2; background: linear-gradient(180deg, rgba(42,15,46,.82), rgba(42,15,46,.55) 40%, rgba(42,15,46,.6) 70%, rgba(42,15,46,.85)); }
+  #card { position: absolute; left: 0; top: 0; width: 1008px; height: 964px; z-index: 5; transform-origin: 0 0; border-radius: 34px; overflow: hidden;
+          box-shadow: 0 30px 70px rgba(0,0,0,.45); }
+  #card img { display: block; width: 1008px; height: 964px; }
+  #spot { position: absolute; inset: 0; z-index: 6; pointer-events: none; }
+  .t { position: absolute; left: 70px; right: 70px; z-index: 10; text-align: center; color: #FBF2E4; }
+  .h { font-family: 'Playfair Display'; font-size: 100px; line-height: 1.04; text-shadow: 0 6px 30px rgba(0,0,0,.45); }
+  .h em { color: #E8C987; }
+  .lab { font-family: 'Montserrat'; font-weight: 600; font-size: 26px; letter-spacing: .32em; text-transform: uppercase; color: #E3C58E; }
+  .co { position: absolute; z-index: 12; width: 360px; background: rgba(251,247,241,.95); border-radius: 22px; padding: 18px 24px 20px; box-shadow: 0 12px 30px rgba(0,0,0,.3); }
+  .co .n { position: absolute; top: -18px; width: 40px; height: 40px; border-radius: 50%; background: #D9B77A; color: #3B1640; font-family: 'Montserrat'; font-weight: 800; font-size: 22px; display: flex; align-items: center; justify-content: center; }
+  .co.l .n { right: -14px; } .co.r .n { left: -14px; }
+  .co .fn { font-family: 'Playfair Display'; font-style: italic; font-size: 38px; color: #5E2560; line-height: 1.05; }
+  .co .fd { font-family: 'Montserrat'; font-weight: 500; font-size: 25px; color: #3a2c38; margin-top: 6px; line-height: 1.25; }
+  #lines { position: absolute; inset: 0; z-index: 11; pointer-events: none; }
+  .chip { position: absolute; left: 50%; z-index: 12; transform-origin: 50% 50%; white-space: nowrap; background: #FBF7F1; color: #3B1640; border-radius: 999px; padding: 20px 40px;
+          font-family: 'Playfair Display'; font-style: italic; font-size: 52px; box-shadow: 0 12px 28px rgba(0,0,0,.28); }
+  #drop { position: absolute; left: 435px; top: 560px; width: 210px; height: 450px; z-index: 12; }
+  #catwrap { position: absolute; inset: 0; z-index: 30; }
+  .bubble { z-index: 32; }
+</style></head>
+<body><div id="stage"></div>
+<script src="../../engine/lib.js"></script>
+<script>
+const SP = '/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/clips/r05/';
+const st = document.getElementById('stage');
+const b = k => 0.023 + 0.8363 * k;
+const T = { zoom: b(3), co: [b(4), b(5), b(6), b(7), b(8)], use: b(11), drops: b(16), cta: b(19), dur: 22.0 };
+const bg = new P.Seq(st, SP + 'orq', { frames: 240, pingpong: true });
+P.el('div', '', st).id = 'shade';
+const card = P.el('div', '', st); card.id = 'card';
+card.innerHTML = `<img src="${P.ASSETS}producto/frascos_sos_personalizado.jpg">`;
+const spot = P.el('div', '', st); spot.id = 'spot';
+const NS = 'http://www.w3.org/2000/svg';
+const lines = document.createElementNS(NS, 'svg'); lines.id = 'lines'; lines.setAttribute('viewBox', '0 0 1080 1920'); st.appendChild(lines);
+
+const hook = P.el('div', 't', st, `<div class="h">¿Qué lleva el<br>frasco <em>SOS</em>?</div>`); hook.style.top = '300px';
+const hookW = P.splitWords(hook.firstChild);
+const sub = P.el('div', 't', st, `<div class="lab">5 Flores de Bach</div><div style="font-family:'Playfair Display';font-size:52px;margin-top:10px;line-height:1.1">la combinación clásica<br>para <em style="color:#E8C987">momentos difíciles</em></div>`);
+sub.style.top = '300px';
+const subW = P.splitWords(sub.children[1]);
+
+// llamadas: lado, y, nombre, descripcion, punto en el frasco (pantalla)
+const CO = [
+  ['l', 585, 'Star of Bethlehem', 'el impacto de una mala noticia', [455, 690]],
+  ['r', 700, 'Rock Rose', 'el susto intenso', [628, 800]],
+  ['l', 840, 'Impatiens', 'la tensión y la impaciencia', [450, 900]],
+  ['r', 975, 'Cherry Plum', 'la sensación de desborde', [632, 1010]],
+  ['l', 1100, 'Clematis', 'la desconexión, estar "en las nubes"', [452, 1110]],
+].map(([side, y, n, d, pt], i) => {
+  const e = P.el('div', 'co ' + side, st, `<div class="n">${i + 1}</div><div class="fn">${n}</div><div class="fd">${d}</div>`);
+  P.style(e, { top: y + 'px', left: side === 'l' ? '48px' : '672px' });
+  const ln = document.createElementNS(NS, 'path');
+  ln.setAttribute('fill', 'none'); ln.setAttribute('stroke', '#E8C987'); ln.setAttribute('stroke-width', '3'); ln.setAttribute('pathLength', '1'); ln.setAttribute('stroke-dasharray', '1 1');
+  lines.appendChild(ln);
+  const dot = document.createElementNS(NS, 'circle'); dot.setAttribute('r', '9'); dot.setAttribute('fill', '#E8C987'); dot.setAttribute('stroke', '#fff'); dot.setAttribute('stroke-width', '3');
+  lines.appendChild(dot);
+  return { e, ln, dot, side, y, pt };
+});
+
+const useT = P.el('div', 't', st, `<div class="lab">¿Cuándo se usa?</div><div class="h" style="font-size:84px;margin-top:12px">Para acompañarte en…</div>`);
+useT.style.top = '300px';
+const useW = P.splitWords(useT.children[1]);
+const CH = ['un día importante', 'una mala noticia', 'un momento muy tenso'].map((c, i) => { const e = P.el('div', 'chip', st, c); e.style.top = (560 + i * 140) + 'px'; return e; });
+
+const dropT = P.el('div', 't', st, `<div class="h" style="font-size:96px">Se toma<br>en <em>gotas</em></div><div style="font-family:Montserrat;font-weight:500;font-size:34px;margin-top:24px;line-height:1.3;color:#F3E6D2">Es un acompañamiento complementario:<br>no reemplaza atención médica ni psicológica</div>`);
+dropT.style.top = '300px';
+const dropW = P.splitWords(dropT.children[0]);
+const drop = document.createElementNS(NS, 'svg'); drop.id = 'drop'; drop.setAttribute('viewBox', '0 0 140 300');
+drop.innerHTML = `<rect x="44" y="0" width="52" height="66" rx="20" fill="#2a1c22"/><rect x="54" y="62" width="32" height="14" fill="#1e1418"/>
+  <path d="M58 76 L82 76 L78 190 Q70 212 62 190 Z" fill="rgba(255,255,255,.7)" stroke="#E8C987" stroke-width="3"/><path d="M63 140 L77 140 L76 188 Q70 200 64 188 Z" fill="#C98A3E"/>
+  <path id="dd" d="M70 222 C64 234 60 242 60 248 a10 10 0 0 0 20 0 c0 -6 -4 -14 -10 -26z" fill="#E8C987"/>`;
+st.appendChild(drop);
+
+const cta = P.el('div', 't', st, `<div class="lab">Viene en tu consulta</div><div class="h" style="font-size:150px;margin-top:6px">$10.000</div>
+  <div style="font-family:'Playfair Display';font-style:italic;font-size:54px;color:#E8C987;margin-top:4px">junto a tu frasco personalizado</div>
+  <div style="margin-top:44px"><div class="wa-pill">${P.chatIcon('#fff')}<span>9 8794 6066</span></div></div>
+  <div style="font-family:Montserrat;font-weight:600;font-size:30px;margin-top:26px;letter-spacing:.03em">Prajim · San Javier y online</div>`);
+cta.style.top = '290px';
+const fx = new P.FX(st, 20);
+const catWrap = P.el('div', '', st); catWrap.id = 'catwrap';
+const cat = new P.Cat(catWrap);
+const bubble = P.el('div', 'bubble tail-right', st); const bubbleTxt = P.el('span', '', bubble);
+
+// estados de la tarjeta (posicion y escala)
+const S_IN = { x: 160, y: 590, s: 0.754 }, S_Z = { x: 120, y: 556, s: 0.86 }, S_LOW = { x: 290, y: 980, s: 0.5 };
+const lerpS = (a, c, k) => ({ x: P.lerp(a.x, c.x, k), y: P.lerp(a.y, c.y, k), s: P.lerp(a.s, c.s, k) });
+
+window.renderFrame = async function (t) {
+  fx.clear();
+  bg.set(t, 0.6);
+  bg.img.style.filter = 'blur(14px) brightness(.9)';
+  bg.img.style.transform = 'scale(1.15)';
+  // tarjeta
+  let S = S_IN, op = 1;
+  const kin = P.ease(t, -0.25, 0.45, 'outCubic');
+  if (t < T.zoom) S = { x: S_IN.x, y: S_IN.y + (1 - kin) * 300, s: S_IN.s };
+  else if (t < T.use) S = lerpS(S_IN, S_Z, P.ease(t, T.zoom, T.zoom + 0.8, 'inOutCubic'));
+  else if (t < T.drops) S = lerpS(S_Z, S_LOW, P.ease(t, T.use, T.use + 0.6, 'inOutCubic'));
+  else { S = S_LOW; op = 1 - P.prog(t, T.drops, T.drops + 0.3); }
+  card.style.opacity = P.clamp(kin * 1.5) * op;
+  card.style.transform = `translate(${S.x}px, ${S.y}px) scale(${S.s})`;
+  // foco sobre el frasco SOS durante las llamadas
+  const sk = P.env(t, T.zoom + 0.3, T.zoom + 0.9, T.use - 0.3, T.use + 0.1);
+  spot.style.background = `radial-gradient(ellipse 210px 420px at 540px 900px, rgba(0,0,0,0), rgba(20,6,22,${0.6 * sk}) 100%)`;
+  // anillo de brillo en el gancho
+  const hk = P.env(t, 0.6, 1.0, 2.0, 2.5);
+  if (hk > 0) { fx.x.save(); fx.x.globalAlpha = hk * 0.9; fx.x.strokeStyle = '#E8C987'; fx.x.lineWidth = 4; fx.x.beginPath();
+    fx.x.ellipse(S.x + 488 * S.s, S.y + 400 * S.s, 120 + 6 * Math.sin(t * 6), 330, 0, 0, Math.PI * 2); fx.x.stroke(); fx.x.restore(); }
+  // textos
+  hook.style.display = t < T.zoom + 0.1 ? 'block' : 'none';
+  P.maskIn(hookW, t, -0.3, { stagger: 0.07, dur: 0.45, ease: 'outExpo', outAt: T.zoom - 0.3 });
+  sub.style.display = t >= T.zoom && t < T.use ? 'block' : 'none';
+  sub.firstChild.style.opacity = P.prog(t, T.zoom, T.zoom + 0.3) * (1 - P.prog(t, T.use - 0.3, T.use));
+  P.maskIn(subW, t, T.zoom + 0.1, { stagger: 0.05, dur: 0.45, outAt: T.use - 0.35 });
+  CO.forEach((c, i) => {
+    const t0 = T.co[i];
+    const on = t >= t0 - 0.05 && t < T.use;
+    c.e.style.display = on ? 'block' : 'none';
+    const k = P.ease(t, t0, t0 + 0.4, 'outBack'), ko = P.prog(t, T.use - 0.3, T.use);
+    c.e.style.transform = `translateX(${(1 - k) * (c.side === 'l' ? -80 : 80)}px) scale(${0.85 + 0.15 * k})`;
+    c.e.style.opacity = P.clamp(k * 2) * (1 - ko);
+    // linea desde la tarjeta al frasco
+    const ex = c.side === 'l' ? 48 + 360 : 672, ey = c.y + 50;
+    const [px, py] = c.pt;
+    c.ln.setAttribute('d', `M${ex} ${ey} C${(ex + px) / 2} ${ey} ${(ex + px) / 2} ${py} ${px} ${py}`);
+    const lk = P.ease(t, t0 + 0.15, t0 + 0.55, 'inOutSine');
+    c.ln.style.strokeDashoffset = 1 - lk; c.ln.style.opacity = on ? 1 - ko : 0;
+    c.dot.setAttribute('cx', px); c.dot.setAttribute('cy', py);
+    c.dot.style.opacity = on ? P.prog(t, t0 + 0.5, t0 + 0.6) * (1 - ko) : 0;
+    if (t > t0 + 0.5 && t < T.use) fx.burst(t, t0 + 0.55, px, py, 8, 50 + i, { speed: 140, size: 9, color: '232,201,135', life: 0.7 });
+  });
+  // cuando se usa
+  useT.style.display = t >= T.use && t < T.drops ? 'block' : 'none';
+  useT.firstChild.style.opacity = P.prog(t, T.use, T.use + 0.3) * (1 - P.prog(t, T.drops - 0.25, T.drops));
+  P.maskIn(useW, t, T.use + 0.1, { stagger: 0.06, dur: 0.45, outAt: T.drops - 0.3 });
+  CH.forEach((c, i) => {
+    const t0 = T.use + 0.6 + i * 0.84;
+    c.style.display = t >= t0 - 0.02 && t < T.drops ? 'block' : 'none';
+    const k = P.ease(t, t0, t0 + 0.4, 'outBack');
+    c.style.transform = `translateX(-50%) scale(${k}) rotate(${(i % 2 ? 2 : -2) * (1 - k)}deg)`;
+    c.style.opacity = P.clamp(k * 2) * (1 - P.prog(t, T.drops - 0.25, T.drops));
+  });
+  // gotas
+  const dOn = t >= T.drops && t < T.cta;
+  dropT.style.display = drop.style.display = dOn ? 'block' : 'none';
+  if (dOn) {
+    P.maskIn(dropW, t, T.drops + 0.05, { stagger: 0.07, dur: 0.45, ease: 'outExpo', outAt: T.cta - 0.3 });
+    dropT.children[1].style.opacity = P.prog(t, T.drops + 0.5, T.drops + 0.8) * (1 - P.prog(t, T.cta - 0.3, T.cta));
+    const dk = P.ease(t, T.drops + 0.2, T.drops + 0.6, 'outBack');
+    drop.style.transform = `translateY(${(1 - dk) * -300 + 170}px)`; drop.style.opacity = P.clamp(dk * 2) * (1 - P.prog(t, T.cta - 0.3, T.cta));
+    const dd = drop.querySelector('#dd'); const cyc = ((t - T.drops - 0.8) % 0.84 + 0.84) % 0.84;
+    dd.style.transform = t > T.drops + 0.8 ? `translateY(${cyc * cyc * 260}px)` : 'none';
+    dd.style.opacity = t > T.drops + 0.8 ? 1 - P.prog(cyc, 0.6, 0.75) : 0;
+    if (t > T.drops + 0.8) { const n = Math.floor((t - T.drops - 0.8) / 0.84); const tl = T.drops + 0.8 + n * 0.84 + 0.62; if (t > tl) fx.burst(t, tl, 540, 1080, 8, 70 + n, { speed: 160, size: 8, color: '232,201,135', life: 0.6 }); }
+  }
+  // llamado
+  const cOn = t >= T.cta;
+  cta.style.display = cOn ? 'block' : 'none';
+  if (cOn) {
+    [...cta.children].forEach((e, j) => { const k = P.ease(t, T.cta + j * 0.15, T.cta + 0.45 + j * 0.15, 'outBack'); e.style.opacity = P.clamp(k * 1.5); e.style.transform = `translateY(${(1 - k) * 30}px)`; });
+    fx.burst(t, T.cta + 0.25, 540, 420, 14, 3, { speed: 260, size: 12, color: '232,201,135', life: 1.0 });
+  }
+  fx.dust(t, 18, 23, { speed: 20, size: 3, alpha: 0.4, color: '255,225,170' });
+  // gatito
+  const cIn = b(21);
+  catWrap.style.display = t >= cIn ? 'block' : 'none';
+  if (t >= cIn) {
+    const k = P.ease(t, cIn, cIn + 0.55, 'outBack');
+    const y = 1920 - (1920 - 1060) * k;
+    const tA = cIn + 0.6, tB = tA + 1.2, winkT = b(25);
+    let face = 'normal';
+    if (P.Cat.blinkAt(t, [cIn + 0.45])) face = 'blink';
+    if (t >= winkT) face = t < winkT + 0.45 ? 'wink' : 'happy';
+    cat.set(t, { x: 590, y, scale: 0.37, face, mouth: P.Cat.talk(t, tA, tB), tilt: 2 * Math.sin((t - cIn) * 2.4) });
+    if (t >= winkT) fx.burst(t, winkT, 830, 1150, 12, 81, { speed: 220, size: 12, hearts: true, heartColor: '#E46A8C', life: 1.0 });
+    if (t >= tA - 0.1) {
+      bubble.style.display = 'block';
+      const bk = P.ease(t, tA - 0.1, tA + 0.2, 'outBack');
+      P.typeText(bubbleTxt, '¡Pregúntale a Claudia!', t, tA - 0.05, 22);
+      P.style(bubble, { right: '420px', top: '1085px', transform: `scale(${bk})`, opacity: P.clamp(bk * 2), transformOrigin: '90% 100%' });
+    } else bubble.style.display = 'none';
+  } else bubble.style.display = 'none';
+  await P.waitAll();
+};
+</script></body></html>

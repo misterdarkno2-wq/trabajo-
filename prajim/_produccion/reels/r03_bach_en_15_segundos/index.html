@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  body { background: #FBF7F1; }
+  #paper { position: absolute; inset: 0; z-index: 0; background: #FBF7F1; }
+  #paper .blob { position: absolute; border-radius: 50%; filter: blur(60px); }
+  #tex { position: absolute; inset: 0; z-index: 1; background: url('../../assets/texturas/papel.png'); opacity: .9; }
+  #timer { position: absolute; left: 84px; top: 292px; width: 150px; height: 150px; z-index: 20; }
+  #timer svg { position: absolute; inset: 0; }
+  #timer .n { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Montserrat'; font-weight: 800; font-size: 60px; color: #3B1640; }
+  #timer .u { position: absolute; left: 0; right: 0; top: 156px; text-align: center; font-family: 'Montserrat'; font-weight: 700; font-size: 20px; letter-spacing: .3em; color: #4F6B52; }
+  .chip { position: absolute; right: 84px; top: 330px; z-index: 20; background: #DDE3CF; color: #4F6B52; border-radius: 999px; padding: 16px 30px 14px;
+          font-family: 'Montserrat'; font-weight: 700; font-size: 30px; letter-spacing: .2em; text-transform: uppercase; transform-origin: 100% 50%; }
+  .seg { position: absolute; inset: 0; z-index: 10; display: none; }
+  .big { position: absolute; left: 84px; right: 84px; font-family: 'Playfair Display'; color: #3B1640; line-height: 1.04; }
+  .big em { color: #5E2560; font-style: italic; position: relative; }
+  .small { position: absolute; left: 84px; right: 84px; font-family: 'Montserrat'; font-weight: 500; color: #4a3a48; line-height: 1.25; }
+  .pol { position: absolute; background: #fff; padding: 20px 20px 74px; box-shadow: 0 24px 50px rgba(59,22,64,.22), 0 4px 10px rgba(59,22,64,.08); z-index: 8; }
+  .pol img { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .pol .tape { position: absolute; top: -26px; left: 50%; width: 170px; height: 54px; margin-left: -85px; background: rgba(221,227,207,.85); transform: rotate(-3deg);
+               box-shadow: 0 2px 4px rgba(0,0,0,.06); }
+  .pol .cap { position: absolute; left: 0; right: 0; bottom: 18px; text-align: center; font-family: 'Playfair Display'; font-style: italic; font-size: 34px; color: #5E2560; }
+  .emo-chip { position: absolute; padding: 18px 34px; border-radius: 999px; font-family: 'Playfair Display'; font-style: italic; font-size: 54px; color: #fff;
+              box-shadow: 0 10px 24px rgba(59,22,64,.18); transform-origin: 50% 50%; white-space: nowrap; }
+  .hl { position: absolute; height: 18px; background: #D9B77A; opacity: .55; border-radius: 9px; transform-origin: 0 50%; z-index: -1; }
+  #catwrap { position: absolute; inset: 0; z-index: 30; }
+  .bubble { z-index: 32; }
+</style></head>
+<body><div id="stage"></div>
+<script src="../../engine/lib.js"></script>
+<script>
+const SP = '/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/clips/r03/';
+const st = document.getElementById('stage');
+const b = k => 0.4989 * k;
+const S = [0, b(3), b(7), b(11), b(16), b(20), b(24)];
+const ZERO = 14.2, DUR = 15.5;
+
+const paper = P.el('div', '', st); paper.id = 'paper';
+const blobs = [['#DDE3CF', 520, -120, 260], ['#F1E3EC', 600, 620, 1500], ['#F3E7D3', 460, 760, 700]].map(([c, s, x, y]) => {
+  const e = P.el('div', 'blob', paper); P.style(e, { background: c, width: s + 'px', height: s + 'px', left: x + 'px', top: y + 'px' }); return e;
+});
+P.el('div', '', st).id = 'tex';
+
+// cronometro
+const timer = P.el('div', '', st); timer.id = 'timer';
+timer.innerHTML = `<svg viewBox="0 0 150 150"><circle cx="75" cy="75" r="70" fill="#fff"/><circle cx="75" cy="75" r="62" fill="none" stroke="#DDE3CF" stroke-width="10"/>
+  <circle id="ring" cx="75" cy="75" r="62" fill="none" stroke="#5E2560" stroke-width="10" stroke-linecap="round" transform="rotate(-90 75 75)" pathLength="1" stroke-dasharray="1 1"/></svg>
+  <div class="n">15</div><div class="u">seg</div>`;
+const ring = timer.querySelector('#ring'), tnum = timer.querySelector('.n');
+const chip = P.el('div', 'chip', st);
+
+// polaroids con video
+class Card {
+  constructor(dir, n, x, y, w, h, rot, cap) {
+    this.el = P.el('div', 'pol', st);
+    P.style(this.el, { left: x + 'px', top: y + 'px', width: w + 40 + 'px', height: h + 94 + 'px' });
+    this.img = P.el('img', '', this.el); P.style(this.img, { height: h + 'px' });
+    P.el('div', 'tape', this.el);
+    if (cap) P.el('div', 'cap', this.el, cap);
+    this.dir = dir; this.n = n; this.rot = rot; this.x = x;
+  }
+  set(t, t0, t1, from = 1) {
+    const on = t >= t0 - 0.02 && t < t1 + 0.4;
+    this.el.style.display = on ? 'block' : 'none';
+    if (!on) return;
+    const kin = P.ease(t, t0, t0 + 0.45, 'outBack');
+    const kout = P.ease(t, t1 - 0.05, t1 + 0.3, 'inCubic');
+    const dx = (1 - kin) * 900 * from - kout * 1100 * from;
+    const r = this.rot + (1 - kin) * 18 * from - kout * 10 * from + 1.2 * Math.sin((t - t0) * 1.3);
+    const vel = Math.abs((1 - kin) - 0) * 0 + (kin < 0.98 ? (1 - kin) * 14 : 0) + kout * 16;
+    this.el.style.transform = `translateX(${dx}px) rotate(${r}deg)`;
+    this.el.style.filter = vel > 0.5 ? `blur(${vel}px)` : 'none';
+    if (this.dir) {
+      const i = P.clamp(Math.floor((t - t0) * 30), 0, this.n - 1);
+      P.setSrc(this.img, this.dir.endsWith('.jpg') ? this.dir : this.dir + '/' + String(i).padStart(5, '0') + '.jpg');
+    }
+  }
+}
+const cards = [
+  new Card(SP + 'orquidea', 120, 650, 985, 300, 375, 6, ''),
+  new Card(SP + 'tulipan', 120, 570, 790, 400, 500, -6, ''),
+  new Card(SP + 'wishbone', 120, 520, 820, 420, 525, 4, 'Inglaterra, 1930'),
+  null,
+  new Card(P.ASSETS + 'producto/frascos_sos_personalizado.jpg', 1, 150, 800, 470, 450, -4, 'tu mezcla'),
+  new Card(SP + 'orquideas', 120, 520, 820, 420, 525, 5, ''),
+];
+
+// segmentos
+const seg = [];
+const mk = (html) => { const e = P.el('div', 'seg', st, html); seg.push(e); return e; };
+// 0 gancho
+const s0 = mk(`<div class="big" id="t0" style="top:470px;font-size:150px">Flores<br><em>de Bach</em></div>
+  <div class="small" style="top:800px;font-size:40px;font-weight:600;letter-spacing:.04em" id="t0b">explicadas en</div>
+  <div class="big" style="top:850px;font-size:96px;color:#fff;left:84px;right:auto" id="t0c"><span style="background:#5E2560;padding:4px 26px 12px;border-radius:18px;display:inline-block">15 segundos</span></div>`);
+// 1 que son
+const s1 = mk(`<div class="big" style="top:440px;font-size:380px;line-height:1;color:#5E2560;font-style:italic" id="n38">38</div>
+  <div class="big" style="top:840px;font-size:84px;right:auto;width:520px" id="t1">esencias<br>de <em>flores</em></div>`);
+// 2 quien
+const s2 = mk(`<div class="big" style="top:470px;font-size:84px" id="t2a">Las creó el</div>
+  <div class="big" style="top:560px;font-size:112px" id="t2b"><em>Dr. Edward Bach</em></div>
+  <div class="small" style="top:720px;font-size:42px;right:auto;width:420px" id="t2c">en Inglaterra,<br>en los años 30</div>`);
+// 3 para que
+const s3 = mk(`<div class="big" style="top:470px;font-size:98px" id="t3">Acompañan tus<br><em>emociones</em></div>`);
+const EMOS = [['miedo', '#5E2560', 130, 770], ['preocupación', '#4F6B52', 420, 760], ['soledad', '#C9A25E', 110, 905], ['tristeza', '#3B1640', 400, 900],
+              ['impaciencia', '#7A3B7D', 650, 905], ['cansancio', '#4F6B52', 150, 1045], ['cambios', '#5E2560', 470, 1045]];
+const emoEls = EMOS.map(([w, c, x, y]) => { const e = P.el('div', 'emo-chip', s3, w); P.style(e, { background: c, left: x + 'px', top: y + 'px' }); return e; });
+// 4 como
+const s4 = mk(`<div class="big" style="top:470px;font-size:104px" id="t4">Se toman<br>en <em>gotas</em></div>
+  <div class="small" style="top:720px;font-size:44px;left:auto;right:84px;width:420px;text-align:right" id="t4b">en una mezcla<br>hecha para ti</div>
+  <svg id="drop" style="position:absolute;left:760px;top:880px;width:180px;height:360px;z-index:12" viewBox="0 0 180 360">
+    <rect x="62" y="0" width="56" height="70" rx="22" fill="#3B1640"/><rect x="72" y="66" width="36" height="16" fill="#2a0f2e"/>
+    <path d="M78 82 L102 82 L98 200 Q90 222 82 200 Z" fill="rgba(255,255,255,.75)" stroke="#C9A25E" stroke-width="3"/>
+    <path d="M84 150 L96 150 L95 198 Q90 210 85 198 Z" fill="#C98A3E" opacity=".8"/>
+    <path id="dr" d="M90 232 C 84 244 80 252 80 258 a10 10 0 0 0 20 0 c0 -6 -4 -14 -10 -26z" fill="#C98A3E"/></svg>`);
+// 5 importante
+const s5 = mk(`<div class="big" style="top:470px;font-size:100px" id="t5">Son<br><em>complementarias</em></div>
+  <div class="small" style="top:720px;font-size:42px;right:auto;width:440px" id="t5b">no reemplazan tratamientos médicos ni psicológicos</div>`);
+// 6 cta
+const s6 = mk(`<div class="big" style="top:470px;font-size:96px;text-align:center" id="t6">Tu consulta<br><em>personalizada</em></div>
+  <div class="small" style="top:705px;text-align:center;font-size:40px;font-weight:600" id="t6b">a domicilio en San Javier y online</div>
+  <div style="position:absolute;left:0;right:0;top:790px;text-align:center" id="pillw"><div class="wa-pill">${P.chatIcon('#fff')}<span>9 8794 6066</span></div></div>
+  <div style="position:absolute;left:0;right:0;top:930px;text-align:center;font-family:'Cormorant Garamond';font-weight:600;font-size:52px;letter-spacing:.3em;color:#3B1640" id="brand">PRAJIM</div>`);
+
+const W = {
+  t0: P.splitWords(s0.querySelector('#t0')), t1: P.splitWords(s1.querySelector('#t1')), t2a: P.splitWords(s2.querySelector('#t2a')),
+  t2b: P.splitWords(s2.querySelector('#t2b')), t3: P.splitWords(s3.querySelector('#t3')), t4: P.splitWords(s4.querySelector('#t4')),
+  t5: P.splitWords(s5.querySelector('#t5')), t6: P.splitWords(s6.querySelector('#t6')),
+};
+const CHIPS = ['Flores de Bach', '¿Qué son?', '¿Quién?', '¿Para qué?', '¿Cómo?', 'Importante', '¿Quieres la tuya?'];
+const fx = new P.FX(st, 25);
+const catWrap = P.el('div', '', st); catWrap.id = 'catwrap';
+const cat = new P.Cat(catWrap);
+const bubble = P.el('div', 'bubble tail-right', st); const bubbleTxt = P.el('span', '', bubble);
+
+const segAt = t => { let i = 0; for (let k = 0; k < S.length; k++) if (t >= S[k]) i = k; return i; };
+const outOf = (t, i) => (i + 1 < S.length ? S[i + 1] : 99);
+// salida de textos: deslizar a la izquierda con desenfoque
+const exitStyle = (el, t, tEnd) => {
+  const k = P.ease(t, tEnd - 0.18, tEnd, 'inCubic');
+  el.style.transform = `translateX(${-160 * k}px)`; el.style.opacity = 1 - k; el.style.filter = k > 0.02 ? `blur(${k * 10}px)` : 'none';
+};
+
+window.renderFrame = async function (t) {
+  fx.clear();
+  blobs.forEach((e, i) => e.style.transform = `translate(${40 * Math.sin(t * 0.4 + i * 2)}px, ${30 * Math.cos(t * 0.35 + i)}px)`);
+  // cronometro
+  const frac = P.clamp(t / ZERO);
+  const show = t < ZERO ? Math.ceil(15 * (1 - frac) - 1e-6) : 0;
+  tnum.textContent = show;
+  ring.style.strokeDashoffset = frac.toFixed(4);
+  const sec = t * 15 / ZERO, pulse = Math.max(0, 1 - (sec - Math.floor(sec)) * 5);
+  const tk = P.ease(t, -0.25, 0.1, 'outBack');
+  const zp = P.env(t, ZERO, ZERO + 0.12, ZERO + 0.3, ZERO + 0.8);
+  timer.style.transform = `scale(${tk * (1 + 0.06 * pulse * (t < ZERO ? 1 : 0) + 0.25 * zp)})`;
+  ring.style.stroke = t >= ZERO ? '#D9B77A' : '#5E2560';
+
+  const i = segAt(t);
+  seg.forEach((e, k) => e.style.display = k === i ? 'block' : 'none');
+  const t0 = S[i], t1 = outOf(t, i);
+  // etiqueta
+  chip.textContent = CHIPS[i];
+  const ck = P.ease(t, i === 0 ? -0.3 : t0, (i === 0 ? -0.3 : t0) + 0.3, 'outBack');
+  chip.style.transform = `scale(${ck})`; chip.style.opacity = P.clamp(ck * 2) * (1 - P.prog(t, t1 - 0.12, t1));
+  // tarjetas
+  cards.forEach((c, k) => { if (c) c.set(t, S[k] + 0.05, outOf(t, k) - 0.02, k % 2 ? -1 : 1); });
+
+  const e = seg[i];
+  if (i === 0) {
+    P.maskIn(W.t0, t, -0.32, { stagger: 0.07, dur: 0.45, ease: 'outExpo' });
+    const a = e.querySelector('#t0b'), c = e.querySelector('#t0c');
+    a.style.opacity = P.prog(t, 0.05, 0.3);
+    const ck2 = P.ease(t, 0.12, 0.47, 'outBack'); c.style.transform = `scale(${ck2}) rotate(${-3 * (1 - ck2)}deg)`; c.style.transformOrigin = '0 50%';
+    exitStyle(e, t, t1);
+  } else if (i === 1) {
+    const n = Math.round(1 + 37 * P.ease(t, t0 + 0.05, t0 + 0.7, 'outCubic'));
+    const nn = e.querySelector('#n38'); nn.textContent = n;
+    nn.style.transform = `scale(${0.8 + 0.2 * P.ease(t, t0, t0 + 0.4, 'outBack') + 0.06 * P.env(t, t0 + 0.7, t0 + 0.8, t0 + 0.85, t0 + 1.1)})`;
+    nn.style.transformOrigin = '0 70%';
+    P.maskIn(W.t1, t, t0 + 0.55, { stagger: 0.07, dur: 0.45 });
+    exitStyle(e, t, t1);
+    if (t > t0 + 0.7) fx.burst(t, t0 + 0.72, 300, 640, 12, 3, { speed: 260, size: 11, color: '217,183,122', life: 0.9 });
+  } else if (i === 2) {
+    P.maskIn(W.t2a, t, t0 + 0.02, { stagger: 0.06, dur: 0.4 });
+    P.maskIn(W.t2b, t, t0 + 0.25, { stagger: 0.08, dur: 0.5, ease: 'outExpo' });
+    e.querySelector('#t2c').style.opacity = P.prog(t, t0 + 0.6, t0 + 0.9);
+    exitStyle(e, t, t1);
+  } else if (i === 3) {
+    P.maskIn(W.t3, t, t0 + 0.02, { stagger: 0.07, dur: 0.45 });
+    emoEls.forEach((c, k) => {
+      const ta = t0 + 0.45 + k * 0.17;
+      const kk = P.ease(t, ta, ta + 0.35, 'outBack');
+      c.style.transform = `scale(${kk}) rotate(${(k % 2 ? 3 : -3) * (1 - kk) + Math.sin(t * 2 + k) * 1.2}deg) translateY(${Math.sin(t * 1.7 + k) * 5}px)`;
+      c.style.opacity = P.clamp(kk * 2);
+    });
+    exitStyle(e, t, t1);
+  } else if (i === 4) {
+    P.maskIn(W.t4, t, t0 + 0.02, { stagger: 0.07, dur: 0.45 });
+    e.querySelector('#t4b').style.opacity = P.prog(t, t0 + 0.5, t0 + 0.8);
+    const d = e.querySelector('#drop'); d.style.transform = `translateY(${(1 - P.ease(t, t0 + 0.2, t0 + 0.6, 'outBack')) * -200}px)`;
+    d.style.opacity = P.prog(t, t0 + 0.2, t0 + 0.4);
+    const dr = e.querySelector('#dr');
+    const cyc = ((t - t0 - 0.7) % 0.75 + 0.75) % 0.75;
+    dr.style.transform = t > t0 + 0.7 ? `translateY(${cyc * cyc * 220}px)` : 'translateY(0)';
+    dr.style.opacity = t > t0 + 0.7 ? 1 - P.prog(cyc, 0.55, 0.7) : 0;
+    exitStyle(e, t, t1);
+  } else if (i === 5) {
+    P.maskIn(W.t5, t, t0 + 0.02, { stagger: 0.08, dur: 0.45 });
+    e.querySelector('#t5b').style.opacity = P.prog(t, t0 + 0.45, t0 + 0.75);
+    exitStyle(e, t, t1);
+  } else if (i === 6) {
+    P.maskIn(W.t6, t, t0 + 0.02, { stagger: 0.08, dur: 0.45, ease: 'outExpo' });
+    e.querySelector('#t6b').style.opacity = P.prog(t, t0 + 0.45, t0 + 0.75);
+    const pk = P.ease(t, t0 + 0.6, t0 + 1.0, 'outBack'); const pw = e.querySelector('.wa-pill');
+    pw.style.transform = `scale(${pk})`; pw.style.opacity = P.clamp(pk * 2);
+    e.querySelector('#brand').style.opacity = P.prog(t, t0 + 0.9, t0 + 1.3);
+    if (t > ZERO) fx.burst(t, ZERO, 159, 367, 18, 5, { speed: 320, size: 13, color: '217,183,122', life: 1.1 });
+  }
+
+  // gatito
+  const cIn = b(25) + 0.1;
+  if (t >= cIn) {
+    catWrap.style.display = 'block';
+    const k = P.ease(t, cIn, cIn + 0.55, 'outBack');
+    const y = 1920 - (1920 - 1010) * k;
+    let face = 'normal';
+    if (P.Cat.blinkAt(t, [cIn + 0.5])) face = 'blink';
+    if (t >= ZERO) face = t < ZERO + 0.5 ? 'wink' : 'happy';
+    const tA = ZERO - 0.85, tB = ZERO - 0.05;
+    const mouth = P.Cat.talk(t, tA, tB);
+    cat.set(t, { x: 560, y, scale: 0.4, face, mouth, tilt: 2 * Math.sin((t - cIn) * 2.3) });
+    if (t >= tA - 0.1) {
+      bubble.style.display = 'block';
+      const bk = P.ease(t, tA - 0.1, tA + 0.2, 'outBack');
+      P.typeText(bubbleTxt, '¡Justo a tiempo!', t, tA - 0.05, 22);
+      P.style(bubble, { right: '450px', top: '1060px', transform: `scale(${bk})`, opacity: P.clamp(bk * 2), transformOrigin: '90% 100%' });
+    } else bubble.style.display = 'none';
+    if (t >= ZERO) fx.burst(t, ZERO + 0.05, 820, 1130, 12, 8, { speed: 240, size: 12, hearts: true, heartColor: '#E46A8C', life: 1.0 });
+  } else { catWrap.style.display = 'none'; bubble.style.display = 'none'; }
+
+  await P.waitAll();
+};
+</script></body></html>

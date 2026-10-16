@@ -20,8 +20,11 @@ cfg = json.load(open(os.path.join(reel, "reel.json")))
 os.makedirs(os.path.join(ROOT, "portadas"), exist_ok=True)
 out = os.path.join(ROOT, "portadas", f"{cfg['name']}_portada.jpg")
 tmp = os.path.join(SP, "snap", f"cover_{cfg['name']}_%t.jpg")
-subprocess.run(["node", os.path.join(HERE, "..", "tests", "snap.js"), os.path.join(reel, "cover.html"), "0", tmp], check=True, env=ENV)
-im = Image.open(tmp.replace("%t", "0")).convert("RGB")
+page, ct = "cover.html", "0"
+if not os.path.exists(os.path.join(reel, "cover.html")):
+    page, ct = "index.html", str(cfg["cover_time"])
+subprocess.run(["node", os.path.join(HERE, "..", "tests", "snap.js"), os.path.join(reel, page), ct, tmp], check=True, env=ENV)
+im = Image.open(tmp.replace("%t", ct)).convert("RGB")
 im.save(out, quality=95)
 # vista previa: recorte central 1080x1440 (perfil) y 1080x1080
 prev = im.copy()

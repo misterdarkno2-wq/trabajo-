@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  #bg { position: absolute; inset: -30px; background-size: cover; background-position: center; filter: blur(6px) brightness(.8); }
+  #shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(40,15,25,.6), rgba(40,15,25,.15) 40%, rgba(40,15,25,.55)); }
+  .t { position: absolute; left: 70px; right: 70px; text-align: center; color: #fff; }
+  .k { font-family: 'Montserrat'; font-weight: 800; font-size: 64px; letter-spacing: .26em; color: #F1D9A6; }
+  .s { font-family: 'Playfair Display'; font-size: 92px; line-height: 1.08; text-shadow: 0 6px 30px rgba(0,0,0,.5); }
+  .s em { color: #F1D9A6; }
+  .msg { position: absolute; padding: 26px 34px; border-radius: 38px; font-family: 'Montserrat', 'Noto Color Emoji'; font-weight: 600; font-size: 46px; box-shadow: 0 10px 30px rgba(40,10,30,.3); max-width: 760px; line-height: 1.2; }
+  .a { left: 90px; background: #fff; color: #2C2A2E; border-bottom-left-radius: 10px; }
+  .y { right: 90px; background: #5E2560; color: #fff; border-bottom-right-radius: 10px; }
+  .emo { font-family: 'Noto Color Emoji'; }
+</style></head>
+<body><div id="stage">
+  <div id="bg"></div><div id="shade"></div>
+  <div class="t k" style="top:300px">POV:</div>
+  <div class="t s" style="top:390px">descubres que en<br>San Javier hay<br><em>terapia floral</em></div>
+  <div class="msg a" style="top:820px">amigaaa <span class="emo">😱</span></div>
+  <div class="msg a" style="top:950px">¿sabías que hay flores de Bach acá? <span class="emo">🌸</span></div>
+  <div class="msg y" style="top:1140px">PÁSAME EL NÚMERO <span class="emo">😭</span></div>
+  <div id="catwrap" style="position:absolute;inset:0"></div>
+</div>
+<script src="../../engine/lib.js"></script>
+<script>
+const src = '/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/clips/r02/te/00100.jpg';
+document.getElementById('bg').style.backgroundImage = `url('${src}')`;
+const cat = new P.Cat(document.getElementById('catwrap'));
+window.renderFrame = async t => {
+  cat.set(0, { x: 640, y: 1250, scale: 0.36, face: 'happy', breathe: false });
+  const im = new Image(); im.src = src; await im.decode();
+  await Promise.all([...document.images].map(i => i.decode().catch(() => {})));
+};
+</script></body></html>

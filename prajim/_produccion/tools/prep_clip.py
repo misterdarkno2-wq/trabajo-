@@ -45,18 +45,21 @@ def main():
     ap.add_argument("--extra", default="")
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--q", type=int, default=3)
+    ap.add_argument("--w", type=int, default=1080)
+    ap.add_argument("--h", type=int, default=1920)
     a = ap.parse_args()
 
     info = json.loads(subprocess.run(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries",
                                       "stream=width,height", "-of", "json", a.src], capture_output=True, text=True).stdout)
     W, H = info["streams"][0]["width"], info["streams"][0]["height"]
     # recorte 9:16 mas grande posible, con zoom y centro (cx, cy)
-    if W / H > 9 / 16:
+    ar = a.w / a.h
+    if W / H > ar:
         ch = H / a.zoom
-        cw = ch * 9 / 16
+        cw = ch * ar
     else:
         cw = W / a.zoom
-        ch = cw * 16 / 9
+        ch = cw / ar
     cw, ch = int(cw) // 2 * 2, int(ch) // 2 * 2
     x = int(min(max(0, a.cx * W - cw / 2), W - cw))
     y = int(min(max(0, a.cy * H - ch / 2), H - ch))
@@ -70,7 +73,7 @@ def main():
     vf.append(f"crop={cw}:{ch}:{x}:{y}")
     if a.hflip:
         vf.append("hflip")
-    vf.append("scale=1080:1920:flags=lanczos")
+    vf.append(f"scale={a.w}:{a.h}:flags=lanczos")
     vf.append(GRADES[a.grade])
     if a.extra:
         vf.append(a.extra)

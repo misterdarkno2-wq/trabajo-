@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  body { background: #2a0f2e; }
+  #bg { position: absolute; inset: 0; z-index: 0; background: radial-gradient(ellipse 90% 60% at 50% 40%, #5E2560, #3B1640 55%, #1e0a22); }
+  #pattern { position: absolute; inset: 0; z-index: 1; opacity: .16; }
+  #tex { position: absolute; inset: 0; z-index: 1; background: url('../../assets/texturas/papel.png'); opacity: .5; mix-blend-mode: screen; }
+  .arch { position: absolute; z-index: 5; transform-origin: 50% 50%; }
+  .arch .in { position: absolute; inset: 0; border-radius: 999px 999px 18px 18px; overflow: hidden; background: #1e0a22; }
+  .arch .in img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .arch .ring { position: absolute; inset: -12px; border-radius: 999px 999px 26px 26px; border: 3px solid #D9B77A; }
+  .arch .ring2 { position: absolute; inset: -22px; border-radius: 999px 999px 32px 32px; border: 1.5px solid rgba(217,183,122,.55); }
+  .arch .num { position: absolute; left: 50%; bottom: -44px; width: 88px; height: 88px; margin-left: -44px; border-radius: 50%; background: #FBF7F1;
+               border: 3px solid #D9B77A; display: flex; align-items: center; justify-content: center; font-family: 'Playfair Display'; font-size: 54px; color: #3B1640; }
+  .arch .veil { position: absolute; inset: 0; border-radius: 999px 999px 18px 18px; background: linear-gradient(180deg, rgba(59,22,64,.0), rgba(59,22,64,.25)); }
+  .t { position: absolute; left: 70px; right: 70px; z-index: 10; text-align: center; color: #FBF2E4; }
+  .lab { font-family: 'Montserrat'; font-weight: 600; font-size: 26px; letter-spacing: .32em; text-transform: uppercase; color: #E3C58E; }
+  .h { font-family: 'Playfair Display'; font-size: 92px; line-height: 1.04; text-shadow: 0 6px 30px rgba(0,0,0,.4); }
+  .h em { color: #E8C987; }
+  .word { font-family: 'Playfair Display'; font-style: italic; font-size: 118px; color: #E8C987; line-height: 1; }
+  .msg { font-family: 'Playfair Display'; font-size: 54px; line-height: 1.14; }
+  .bach { font-family: 'Montserrat'; font-weight: 500; font-size: 30px; color: #E3C58E; letter-spacing: .02em; }
+  .pause { display: inline-flex; align-items: center; gap: 16px; background: rgba(251,247,241,.12); border: 2px solid rgba(217,183,122,.6); border-radius: 999px; padding: 14px 30px;
+           font-family: 'Montserrat'; font-weight: 700; font-size: 34px; letter-spacing: .06em; }
+  .pause i { display: inline-block; width: 11px; height: 34px; background: #E8C987; border-radius: 3px; margin-right: 6px; }
+  #catwrap { position: absolute; inset: 0; z-index: 30; }
+  .bubble { z-index: 32; }
+  #flash { position: absolute; inset: 0; z-index: 40; background: radial-gradient(circle, rgba(255,230,180,.9), rgba(255,200,140,0) 70%); opacity: 0; mix-blend-mode: screen; }
+</style></head>
+<body><div id="stage">
+  <div id="bg"></div>
+  <svg id="pattern" viewBox="0 0 1080 1920"><defs><pattern id="pp" width="120" height="120" patternUnits="userSpaceOnUse"><path d="M60 50 l3 7 7 3 -7 3 -3 7 -3 -7 -7 -3 7 -3z" fill="#E8C987"/><circle cx="10" cy="10" r="2" fill="#E8C987"/></pattern></defs><rect width="1080" height="1920" fill="url(#pp)"/></svg>
+  <div id="tex"></div>
+</div>
+<script src="../../engine/lib.js"></script>
+<script>
+const SP = '/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/clips/r07/';
+const st = document.getElementById('stage');
+const b = k => 0.9985 * k;
+const R0 = 4.5, RD = 2.75, CTA = R0 + 4 * RD, DUR = 22.0;
+const FL = [
+  { word: 'Confianza', msg: 'Confía en lo que<br>ya sabes hacer.', bach: 'En Flores de Bach la acompaña <b>Larch</b>' },
+  { word: 'Calma', msg: 'No todo tiene<br>que ser hoy.', bach: 'En Flores de Bach la acompaña <b>Impatiens</b>' },
+  { word: 'Soltar', msg: 'Lo que pasó ya no<br>define tu día.', bach: 'En Flores de Bach lo acompaña <b>Honeysuckle</b>' },
+  { word: 'Cambio', msg: 'Los cambios también<br>traen cosas buenas.', bach: 'En Flores de Bach lo acompaña <b>Walnut</b>' },
+];
+// posiciones en la grilla 2x2
+const GRID = [[115, 505], [595, 505], [115, 905], [595, 905]];
+const AW = 370, AH = 330;
+const arches = FL.map((f, i) => {
+  const a = P.el('div', 'arch', st);
+  a.innerHTML = `<div class="ring2"></div><div class="ring"></div><div class="in"><img></div><div class="veil"></div><div class="num">${i + 1}</div>`;
+  a.img = a.querySelector('img'); a._dir = SP + 'f' + (i + 1) + '/';
+  return a;
+});
+const hook = P.el('div', 't', st, `<div class="lab">Interactivo · Flores de Bach</div><div class="h" style="margin-top:12px">Elige una flor<br><em>sin pensarlo</em></div>`);
+hook.style.top = '262px';
+const hookW = P.splitWords(hook.querySelector('.h'));
+const pause = P.el('div', 't', st, `<div class="pause"><span><i></i><i></i></span><span>Pausa y elige</span></div>`);
+pause.style.top = '1290px'; pause.style.display = 'none';
+const count = P.el('div', 't', st); P.style(count, { top: '600px', fontFamily: 'Playfair Display', fontSize: '300px', color: '#E8C987', zIndex: 12, textShadow: '0 10px 40px rgba(0,0,0,.5)' });
+// textos de revelado
+const rv = FL.map((f, i) => {
+  const w = P.el('div', 't', st, `<div class="word">${f.word}</div><div class="msg" style="margin-top:18px">${f.msg}</div><div class="bach" style="margin-top:20px">${f.bach}</div>`);
+  w.style.top = '900px'; w.style.display = 'none';
+  w._w = P.splitWords(w.querySelector('.msg'));
+  w._word = P.splitChars(w.querySelector('.word'));
+  return w;
+});
+const ctaT = P.el('div', 't', st, `<div class="h">¿Cuál te <em>tocó</em>?</div><div class="msg" style="margin-top:22px;font-size:46px">Comenta tu número y envíaselo<br>a quien necesite su mensaje</div>`);
+ctaT.style.top = '300px'; ctaT.style.display = 'none';
+const ctaW = P.splitWords(ctaT.querySelector('.h'));
+const brand = P.el('div', 't', st, `<div style="font-family:'Cormorant Garamond';font-weight:600;font-size:64px;letter-spacing:.3em;padding-left:.3em">PRAJIM</div><div style="margin-top:14px"><div class="wa-pill" style="font-size:48px;padding:16px 36px 16px 24px">${P.chatIcon('#fff')}<span>9 8794 6066</span></div></div>`);
+brand.style.top = '585px'; brand.style.display = 'none';
+const fx = new P.FX(st, 20);
+const catWrap = P.el('div', '', st); catWrap.id = 'catwrap';
+const cat = new P.Cat(catWrap);
+const bubble = P.el('div', 'bubble tail-right', st); const bubbleTxt = P.el('span', '', bubble);
+const flash = P.el('div', '', st); flash.id = 'flash';
+
+window.renderFrame = async function (t) {
+  fx.clear();
+  // fondo con estrellas que respiran
+  document.getElementById('pattern').style.opacity = 0.12 + 0.05 * Math.sin(t * 1.5);
+  // gancho
+  const hOut = R0 - 0.3;
+  hook.style.display = t < R0 ? 'block' : 'none';
+  P.maskIn(hookW, t, -0.32, { stagger: 0.06, dur: 0.45, ease: 'outExpo', outAt: hOut });
+  hook.querySelector('.lab').style.opacity = 1 - P.prog(t, hOut, hOut + 0.25);
+  // pausa + cuenta regresiva
+  pause.style.display = t > 1.0 && t < R0 ? 'block' : 'none';
+  const pk = P.ease(t, 1.1, 1.5, 'outBack'); pause.firstChild.style.transform = `scale(${pk})`; pause.style.opacity = 1 - P.prog(t, hOut, hOut + 0.2);
+  const cd = t >= 2.0 && t < R0 - 0.05 ? 3 - Math.floor((t - 2.0) / 0.83) : null;
+  count.style.display = cd && cd > 0 ? 'block' : 'none';
+  if (cd && cd > 0) { const ph = ((t - 2.0) / 0.83) % 1; count.textContent = cd; count.style.transform = `scale(${1.4 - 0.4 * P.E.outBack(P.clamp(ph * 3))})`; count.style.opacity = (1 - P.prog(ph, 0.7, 1)) * 0.95; }
+
+  // revelados
+  let ri = -1; for (let k = 0; k < 4; k++) if (t >= R0 + k * RD && t < R0 + (k + 1) * RD) ri = k;
+  arches.forEach((a, i) => {
+    // aparicion en la grilla
+    const ka = P.ease(t, 0.15 + i * 0.12, 0.6 + i * 0.12, 'outBack');
+    let x = GRID[i][0], y = GRID[i][1], w = AW, h = AH, op = P.clamp(ka * 2), sc = ka;
+    // levitacion suave
+    y += 6 * Math.sin(t * 1.6 + i * 1.3);
+    // durante la cuenta: brillo alterno
+    const glow = t > 1.2 && t < R0 ? P.env(((t * 2.4 - i * 0.6) % 4 + 4) % 4, 0, 0.3, 0.6, 1.2) : 0;
+    a.querySelector('.ring').style.boxShadow = `0 0 ${10 + 40 * glow}px rgba(232,201,135,${0.3 + 0.6 * glow})`;
+    if (t >= R0 - 0.3 && t < CTA) {
+      // cada carta se agranda en su turno; las demas se esconden
+      const tk = R0 + Math.max(0, ri) * RD;
+      if (ri === i) {
+        const k = P.ease(t, tk - 0.05, tk + 0.55, 'inOutCubic');
+        x = P.lerp(GRID[i][0], 250, k); y = P.lerp(GRID[i][1], 330, k); w = P.lerp(AW, 580, k); h = P.lerp(AH, 540, k);
+        const ko = P.ease(t, tk + RD - 0.3, tk + RD, 'inCubic');
+        op = 1 - ko; sc = 1 - 0.15 * ko;
+      } else {
+        const k = P.ease(t, R0 - 0.3, R0, 'inCubic');
+        op = 1 - k; sc = 1 - 0.2 * k;
+      }
+    }
+    if (t >= CTA - 0.05) {
+      // vuelven pequenas abajo como recordatorio
+      const k = P.ease(t, CTA, CTA + 0.6 + i * 0.08, 'outBack');
+      x = 75 + i * 240; y = 815; w = 210; h = 200; op = P.clamp(k * 2); sc = k;
+    }
+    P.style(a, { left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px', opacity: op, transform: `scale(${sc})` });
+    a.querySelector('.num').style.transform = `scale(${w / AW > 1.2 ? 1.25 : (w < 250 ? 0.8 : 1)})`;
+    const fi = Math.floor(t * 30) % 180;
+    P.setSrc(a.img, a._dir + String(fi).padStart(5, '0') + '.jpg');
+  });
+  rv.forEach((r, i) => {
+    const t0 = R0 + i * RD, t1 = t0 + RD;
+    const on = t >= t0 && t < t1;
+    r.style.display = on ? 'block' : 'none';
+    if (!on) return;
+    P.blurIn(r._word, t, t0 + 0.4, { stagger: 0.04, dur: 0.4, blur: 12, dy: 20 });
+    P.maskIn(r._w, t, t0 + 0.7, { stagger: 0.05, dur: 0.45, outAt: t1 - 0.3 });
+    r.querySelector('.word').style.opacity = 1 - P.prog(t, t1 - 0.3, t1);
+    r.querySelector('.bach').style.opacity = P.prog(t, t0 + 1.1, t0 + 1.4) * (1 - P.prog(t, t1 - 0.3, t1));
+    fx.burst(t, t0 + 0.45, 540, 520, 16, 30 + i, { speed: 320, size: 13, color: '232,201,135', life: 1.2 });
+  });
+  flash.style.opacity = 0.5 * Math.max(0, ...[0, 1, 2, 3].map(k => P.env(t, R0 + k * RD + 0.3, R0 + k * RD + 0.42, R0 + k * RD + 0.45, R0 + k * RD + 0.8)));
+  // llamado
+  const cOn = t >= CTA;
+  ctaT.style.display = brand.style.display = cOn ? 'block' : 'none';
+  if (cOn) {
+    P.maskIn(ctaW, t, CTA + 0.05, { stagger: 0.07, dur: 0.5, ease: 'outExpo' });
+    ctaT.querySelector('.msg').style.opacity = P.prog(t, CTA + 0.5, CTA + 0.85);
+    const bk = P.ease(t, CTA + 1.6, CTA + 2.1, 'outBack'); brand.style.opacity = P.clamp(bk * 2); brand.style.transform = `scale(${0.85 + 0.15 * bk})`;
+  }
+  fx.dust(t, 22, 17, { speed: 22, size: 3.2, alpha: 0.45, color: '255,225,170' });
+  // gatito
+  const cIn = CTA + 2.2;
+  catWrap.style.display = t >= cIn ? 'block' : 'none';
+  if (t >= cIn) {
+    const k = P.ease(t, cIn, cIn + 0.55, 'outBack');
+    const y = 1920 - (1920 - 1085) * k;
+    const tA = cIn + 0.6, tB = tA + 1.2, winkT = DUR - 1.2;
+    let face = 'normal';
+    if (t >= winkT) face = t < winkT + 0.45 ? 'wink' : 'happy';
+    cat.set(t, { x: 560, y, scale: 0.36, face, mouth: P.Cat.talk(t, tA, tB), tilt: 2 * Math.sin((t - cIn) * 2.4) });
+    if (t >= winkT) fx.burst(t, winkT, 800, 1180, 12, 41, { speed: 220, size: 12, hearts: true, heartColor: '#E46A8C', life: 1.0 });
+    if (t >= tA - 0.1) {
+      bubble.style.display = 'block';
+      const bk = P.ease(t, tA - 0.1, tA + 0.2, 'outBack');
+      P.typeText(bubbleTxt, '¡A mí me tocó la 2!', t, tA - 0.05, 20);
+      P.style(bubble, { right: '450px', top: '1105px', transform: `scale(${bk})`, opacity: P.clamp(bk * 2), transformOrigin: '90% 100%' });
+    } else bubble.style.display = 'none';
+  } else bubble.style.display = 'none';
+  await P.waitAll();
+};
+</script></body></html>

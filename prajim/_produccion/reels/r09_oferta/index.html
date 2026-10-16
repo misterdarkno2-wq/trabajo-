@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  body { background: #2b1d14; }
+  #bg { position: absolute; inset: -40px; background: url('../../assets/producto/frascos_fondo_desenfocado.jpg') center/cover; z-index: 0; }
+  #shade { position: absolute; inset: 0; z-index: 1; background: linear-gradient(180deg, rgba(59,22,64,.72), rgba(59,22,64,.35) 35%, rgba(59,22,64,.25) 65%, rgba(59,22,64,.65)); }
+  #hook { position: absolute; left: 60px; right: 60px; top: 278px; z-index: 10; text-align: center; color: #fff; font-family: 'Playfair Display'; font-size: 76px; line-height: 1.05; text-shadow: 0 6px 24px rgba(0,0,0,.4); }
+  #hook em { color: #F1D9A6; font-style: italic; }
+  #slot { position: absolute; left: 170px; top: 452px; width: 740px; height: 40px; border-radius: 20px; background: #2a0f2e; z-index: 6;
+          box-shadow: inset 0 6px 10px rgba(0,0,0,.6), 0 2px 0 rgba(255,255,255,.15); }
+  #paperclip { position: absolute; left: 200px; top: 472px; width: 680px; height: 850px; overflow: hidden; z-index: 7; }
+  #rec { position: absolute; left: 10px; top: 0; width: 660px; background: #fffdf9; color: #3B1640; font-family: 'Montserrat';
+         box-shadow: 0 18px 40px rgba(0,0,0,.25); padding: 34px 44px 50px; }
+  #rec::after { content: ''; position: absolute; left: 0; right: 0; bottom: -18px; height: 20px;
+         background: linear-gradient(-45deg, transparent 12px, #fffdf9 0) 0 0/24px 20px, linear-gradient(45deg, transparent 12px, #fffdf9 0) 0 0/24px 20px; }
+  .rl { height: 0; overflow: hidden; }
+  .rh { text-align: center; }
+  .rh .m { font-family: 'Cormorant Garamond'; font-weight: 700; font-size: 56px; letter-spacing: .3em; padding-left: .3em; }
+  .rh .s { font-weight: 600; font-size: 19px; letter-spacing: .3em; color: #4F6B52; margin-top: 2px; }
+  .rh .d { font-weight: 500; font-size: 20px; color: #7b6a78; margin-top: 8px; letter-spacing: .06em; }
+  .dash { border-top: 3px dashed #d8c9d3; margin: 18px 0; }
+  .it { display: flex; align-items: center; gap: 18px; font-size: 36px; font-weight: 600; padding: 9px 0; }
+  .it .ck { width: 46px; height: 46px; border-radius: 50%; background: #DDE3CF; display: flex; align-items: center; justify-content: center; flex: none; }
+  .pr { display: flex; justify-content: space-between; align-items: baseline; font-weight: 600; }
+  .pr.antes { font-size: 34px; color: #8d7b89; padding: 6px 0; position: relative; }
+  .pr.hoy { font-size: 40px; padding: 4px 0 0; }
+  .pr.hoy b { font-family: 'Playfair Display'; font-size: 92px; color: #5E2560; font-weight: 700; }
+  .strike { position: absolute; right: -6px; top: 50%; height: 5px; width: 190px; background: #5E2560; border-radius: 3px; transform-origin: 0 50%; }
+  #stamp { position: absolute; left: 700px; top: 478px; width: 236px; height: 236px; z-index: 9; mix-blend-mode: multiply; }
+  #end { position: absolute; inset: 0; z-index: 12; display: none; color: #fff; }
+  .card { position: absolute; left: 70px; top: 330px; width: 420px; border-radius: 28px; overflow: hidden; box-shadow: 0 24px 50px rgba(0,0,0,.35); border: 8px solid #fff; }
+  .card img { display: block; width: 100%; }
+  .r { position: absolute; left: 530px; right: 50px; font-family: 'Playfair Display'; }
+  #catwrap { position: absolute; inset: 0; z-index: 30; }
+  .bubble { z-index: 32; }
+  #flash { position: absolute; inset: 0; z-index: 40; background: #fff; opacity: 0; }
+</style></head>
+<body><div id="stage">
+  <div id="bg"></div><div id="shade"></div>
+  <div id="hook">Esto te llevas<br>por <em>$10.000</em></div>
+  <div id="slot"></div>
+  <div id="paperclip"><div id="rec">
+    <div class="rl rh" data-k="2"><div><img src="../../assets/logo/loto_color.png" style="width:74px"></div><div class="m">PRAJIM</div><div class="s">TERAPIA FLORAL</div><div class="d">San Javier · Online</div><div class="dash"></div></div>
+    <div class="rl" data-k="3"><div class="it"><span class="ck">✓</span>Consulta personalizada</div></div>
+    <div class="rl" data-k="4"><div class="it"><span class="ck">✓</span>Frasco SOS</div></div>
+    <div class="rl" data-k="5"><div class="it"><span class="ck">✓</span>Frasco personalizado</div></div>
+    <div class="rl" data-k="6"><div class="it"><span class="ck">✓</span>A domicilio u online</div></div>
+    <div class="rl" data-k="7"><div class="dash"></div></div>
+    <div class="rl" data-k="8"><div class="pr antes"><span>ANTES</span><span>$20.000</span><i class="strike"></i></div></div>
+    <div class="rl" data-k="10"><div class="pr hoy"><span>HOY</span><b>$10.000</b></div></div>
+  </div></div>
+  <svg id="stamp" viewBox="0 0 290 290">
+    <g transform="rotate(-14 145 145)" fill="none" stroke="#5E2560">
+      <circle cx="145" cy="145" r="132" stroke-width="7"/><circle cx="145" cy="145" r="112" stroke-width="3"/>
+      <path id="arc" d="M45 145 A100 100 0 0 1 245 145" stroke="none"/>
+      <text font-family="Montserrat" font-weight="800" font-size="26" letter-spacing="7" fill="#5E2560" stroke="none"><textPath href="#arc" startOffset="50%" text-anchor="middle">OFERTA PRAJIM</textPath></text>
+      <text x="145" y="168" text-anchor="middle" font-family="Playfair Display" font-weight="700" font-size="78" fill="#5E2560" stroke="none">-50%</text>
+      <g fill="#5E2560" stroke="none" transform="translate(145 215) scale(.9)">
+        <ellipse cx="0" cy="10" rx="20" ry="16"/><ellipse cx="-22" cy="-10" rx="7" ry="9"/><ellipse cx="-8" cy="-19" rx="7" ry="9"/><ellipse cx="8" cy="-19" rx="7" ry="9"/><ellipse cx="22" cy="-10" rx="7" ry="9"/>
+      </g>
+    </g>
+  </svg>
+  <div id="end">
+    <div class="card"><img src="../../assets/producto/frascos_sos_personalizado.jpg"></div>
+    <div class="r" style="top:350px;font-size:70px;line-height:1.05">Consulta<br><span style="font-style:italic;color:#F1D9A6">+ 2 frascos</span></div>
+    <div class="r" id="price" style="top:525px;font-size:118px;font-weight:700;line-height:1">$10.000</div>
+    <div class="r" style="top:680px;font-family:'Montserrat';font-weight:600;font-size:26px;letter-spacing:.2em;color:#F1D9A6" id="sos">SOS + PERSONALIZADO</div>
+    <div style="position:absolute;left:0;right:0;top:800px;text-align:center" id="pillw"><div class="wa-pill" style="font-size:66px">${''}</div></div>
+    <div style="position:absolute;left:0;right:0;top:935px;text-align:center;font-family:'Montserrat';font-weight:600;font-size:32px;letter-spacing:.03em" id="lug">San Javier a domicilio · Online</div>
+  </div>
+  <div id="catwrap"></div>
+  <div id="flash"></div>
+</div>
+<script src="../../engine/lib.js"></script>
+<script>
+const st = document.getElementById('stage');
+const b = k => 0.139 + 0.6038 * k;
+const DUR = 13.5, OUT = b(14), END = b(15);
+document.querySelector('#end .wa-pill').innerHTML = P.chatIcon('#fff') + '<span>9 8794 6066</span>';
+const hookW = P.splitWords(document.getElementById('hook'));
+const rows = [...document.querySelectorAll('.rl')].map(e => ({ el: e, k: +e.dataset.k, h: 0 }));
+const rec = document.getElementById('rec'), clip = document.getElementById('paperclip'), slot = document.getElementById('slot');
+const stamp = document.getElementById('stamp'), strike = document.querySelector('.strike'), end = document.getElementById('end');
+const bg = document.getElementById('bg'), flash = document.getElementById('flash');
+const fx = new P.FX(st, 20);
+const catWrap = document.getElementById('catwrap');
+const cat = new P.Cat(catWrap);
+const bubble = P.el('div', 'bubble tail-right', st); const bubbleTxt = P.el('span', '', bubble);
+
+window.prepare = async () => {
+  rows.forEach(r => { r.el.style.height = 'auto'; r.h = r.el.offsetHeight; r.el.style.height = '0px'; });
+};
+
+window.renderFrame = async function (t) {
+  fx.clear();
+  bg.style.transform = `scale(${1.06 + 0.04 * P.prog(t, 0, DUR)})`;
+  bg.style.filter = `brightness(${t < END ? 0.9 : 1})`;
+  // gancho
+  P.maskIn(hookW, t, -0.3, { stagger: 0.06, dur: 0.45, ease: 'outExpo' });
+  document.getElementById('hook').style.opacity = 1 - P.prog(t, OUT - 0.1, OUT + 0.2);
+  // impresora: cada linea sale en su pulso
+  const recOn = t < END;
+  for (const e of [slot, clip]) e.style.display = recOn ? 'block' : 'none';
+  let total = 0;
+  rows.forEach(r => {
+    const t0 = b(r.k) - 0.25;
+    const k = P.ease(t, t0, t0 + 0.32, 'outCubic');
+    r.el.style.height = (r.h * k).toFixed(1) + 'px';
+    total += r.h * k;
+  });
+  slot.style.transform = `scaleX(${P.ease(t, 0.1, 0.45, 'outBack')})`;
+  clip.style.opacity = P.prog(t, 0.35, 0.55);
+  // vibracion de impresion
+  const printing = rows.some(r => t > b(r.k) - 0.25 && t < b(r.k) + 0.07);
+  rec.style.transform = `translateX(${printing ? Math.sin(t * 90) * 1.5 : 0}px)`;
+  // tachado de "antes"
+  strike.style.transform = `scaleX(${P.ease(t, b(9) - 0.1, b(9) + 0.2, 'outCubic')})`;
+  strike.style.width = '150px';
+  // brillo en el precio de hoy
+  if (t > b(10)) fx.burst(t, b(10) + 0.05, 720, 1150, 14, 4, { speed: 260, size: 12, color: '217,183,122', life: 1.0 });
+  // salida del recibo hacia arriba
+  const ko = P.ease(t, OUT, END, 'inCubic');
+  clip.style.transform = `translateY(${-1400 * ko}px) rotate(${-6 * ko}deg)`;
+  slot.style.opacity = 1 - ko;
+  // sello
+  const sT = b(12) - 0.12;
+  const sk = P.prog(t, sT, sT + 0.14);
+  const shake = P.env(t, sT + 0.14, sT + 0.15, sT + 0.2, sT + 0.45);
+  stamp.style.display = t >= sT && t < END ? 'block' : 'none';
+  stamp.style.transform = `translateY(${-1400 * ko}px) scale(${2.2 - 1.2 * P.E.inQuad(sk)}) rotate(${4 * Math.sin(t * 60) * shake}deg)`;
+  stamp.style.opacity = 0.25 + 0.65 * sk;
+  st.style.transform = shake > 0 ? `translate(${Math.sin(t * 80) * 6 * shake}px, ${Math.cos(t * 70) * 6 * shake}px)` : 'none';
+  if (t > sT + 0.14 && t < END) fx.burst(t, sT + 0.14, 818, 596, 16, 11, { speed: 300, size: 10, color: '217,183,122', life: 0.8 });
+  flash.style.opacity = 0.5 * P.env(t, END - 0.08, END, END, END + 0.25);
+
+  // final
+  end.style.display = t >= END ? 'block' : 'none';
+  if (t >= END) {
+    const c = end.querySelector('.card');
+    const ck = P.ease(t, END, END + 0.5, 'outBack');
+    c.style.transform = `translateX(${(1 - ck) * -500}px) rotate(${-4 - 10 * (1 - ck)}deg)`;
+    const rr = end.querySelectorAll('.r');
+    rr.forEach((e, i) => { const k = P.ease(t, END + 0.15 + i * 0.12, END + 0.55 + i * 0.12, 'outCubic'); e.style.opacity = k; e.style.transform = `translateX(${(1 - k) * 60}px)`; });
+    const pr = end.querySelector('#price'); pr.style.transform += ` scale(${1 + 0.06 * P.env(t, END + 0.5, END + 0.6, END + 0.7, END + 1.0)})`; pr.style.transformOrigin = '0 50%';
+    const pk = P.ease(t, b(17), b(17) + 0.45, 'outBack'); const pill = end.querySelector('.wa-pill');
+    pill.style.transform = `scale(${pk})`; pill.style.opacity = P.clamp(pk * 2);
+    const lug = end.querySelector('#lug'); lug.style.opacity = P.prog(t, b(17) + 0.3, b(17) + 0.6);
+    fx.dust(t, 18, 9, { speed: 24, size: 3.4, alpha: 0.5, color: '255,226,170' });
+  }
+  // gatito
+  const cIn = b(18);
+  catWrap.style.display = t >= cIn ? 'block' : 'none';
+  if (t >= cIn) {
+    const k = P.ease(t, cIn, cIn + 0.55, 'outBack');
+    const y = 1920 - (1920 - 1045) * k;
+    const tA = cIn + 0.6, tB = tA + 1.2, winkT = b(21) + 0.1;
+    let face = 'normal';
+    if (P.Cat.blinkAt(t, [cIn + 0.45])) face = 'blink';
+    if (t >= winkT) face = t < winkT + 0.45 ? 'wink' : 'happy';
+    cat.set(t, { x: 600, y, scale: 0.38, face, mouth: P.Cat.talk(t, tA, tB), tilt: 2 * Math.sin((t - cIn) * 2.5) });
+    if (t >= winkT) fx.burst(t, winkT, 850, 1150, 12, 13, { speed: 230, size: 12, hearts: true, heartColor: '#E46A8C', life: 1.0 });
+    if (t >= tA - 0.1) {
+      bubble.style.display = 'block';
+      const bk = P.ease(t, tA - 0.1, tA + 0.2, 'outBack');
+      P.typeText(bubbleTxt, '¡Escríbele a Claudia!', t, tA - 0.05, 22);
+      P.style(bubble, { right: '420px', top: '1085px', transform: `scale(${bk})`, opacity: P.clamp(bk * 2), transformOrigin: '90% 100%' });
+    }
+  } else bubble.style.display = 'none';
+  await P.waitAll();
+};
+</script></body></html>

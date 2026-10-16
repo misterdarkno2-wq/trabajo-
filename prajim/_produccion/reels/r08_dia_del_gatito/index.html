@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  body { background: #FBF7F1; }
+  #wall { position: absolute; inset: 0; z-index: 0; }
+  #wallTex { position: absolute; inset: 0; z-index: 1; background: url('../../assets/texturas/papel.png'); opacity: .8; }
+  #win { position: absolute; left: 250px; top: 560px; width: 580px; height: 700px; z-index: 2; }
+  #win .sky { position: absolute; left: 30px; top: 30px; right: 30px; bottom: 30px; border-radius: 260px 260px 0 0; overflow: hidden; }
+  #win .frame { position: absolute; inset: 0; border-radius: 290px 290px 0 0; border: 30px solid #fffaf2; box-shadow: 0 10px 30px rgba(59,22,64,.12), inset 0 0 0 4px #e9dccb; }
+  #win .mull { position: absolute; left: 50%; top: 30px; bottom: 30px; width: 16px; margin-left: -8px; background: #fffaf2; }
+  #win .mullh { position: absolute; left: 30px; right: 30px; top: 330px; height: 16px; background: #fffaf2; }
+  .sun { position: absolute; border-radius: 50%; }
+  .cloud { position: absolute; background: rgba(255,255,255,.85); border-radius: 60px; filter: blur(1px); }
+  #curtL, #curtR { position: absolute; top: 520px; width: 120px; height: 820px; z-index: 3; opacity: .82; background: repeating-linear-gradient(90deg, #8a4c8c 0 22px, #6e3471 22px 40px); border-radius: 0 0 46px 46px; box-shadow: 0 8px 20px rgba(59,22,64,.15); }
+  #curtL { left: 190px; transform-origin: 0 0; } #curtR { right: 190px; transform-origin: 100% 0; }
+  #rod { position: absolute; left: 120px; right: 120px; top: 506px; height: 18px; border-radius: 9px; background: #C9A25E; z-index: 4; }
+  #table { position: absolute; left: -20px; right: -20px; top: 1350px; bottom: -20px; z-index: 5; background: linear-gradient(180deg, #e9d8c2, #d8c2a4); border-top: 14px solid #f3e6d3; }
+  #cloth { position: absolute; left: 140px; right: 140px; top: 1340px; height: 120px; z-index: 6; background: #DDE3CF; border-radius: 12px; opacity: .9; }
+  #props { position: absolute; inset: 0; z-index: 7; }
+  #catwrap { position: absolute; inset: 0; z-index: 10; }
+  #over { position: absolute; inset: 0; z-index: 14; pointer-events: none; }
+  #clock { position: absolute; left: 76px; top: 286px; z-index: 20; display: flex; align-items: center; gap: 14px; }
+  #clock .d { font-family: 'Montserrat'; font-weight: 800; font-size: 74px; color: #3B1640; height: 92px; overflow: hidden; line-height: 92px; font-variant-numeric: tabular-nums; }
+  #hh, #mm { width: 100px; text-align: center; }
+  #clock .d span { display: block; }
+  #clock .ap { font-family: 'Montserrat'; font-weight: 700; font-size: 26px; background: #5E2560; color: #fff; border-radius: 999px; padding: 8px 16px; letter-spacing: .1em; }
+  #cap { position: absolute; left: 76px; right: 76px; top: 392px; z-index: 20; font-family: 'Playfair Display'; font-size: 62px; line-height: 1.08; color: #3B1640; }
+  #cap em { color: #5E2560; }
+  #cap small { display: block; font-family: 'Montserrat'; font-size: 32px; color: #4F6B52; font-weight: 600; margin-top: 10px; }
+  #hook { position: absolute; left: 76px; right: 76px; top: 292px; z-index: 21; }
+  .bubble { z-index: 24; font-size: 48px; }
+  #endc { position: absolute; inset: 0; z-index: 22; display: none; }
+  #dim { position: absolute; inset: 0; z-index: 9; background: #1f0f2e; opacity: 0; }
+  #flash { position: absolute; inset: 0; z-index: 40; background: #fff; opacity: 0; }
+</style></head>
+<body><div id="stage">
+  <div id="wall"></div><div id="wallTex"></div>
+  <div id="win"><div class="sky"><div class="sun" id="sun"></div><div class="cloud" id="c1" style="width:180px;height:60px"></div><div class="cloud" id="c2" style="width:130px;height:46px"></div><div id="stars" style="position:absolute;inset:0"></div></div><div class="mull"></div><div class="mullh"></div><div class="frame"></div></div>
+  <div id="curtL"></div><div id="curtR"></div><div id="rod"></div>
+  <div id="table"></div><div id="cloth"></div>
+  <div id="props"></div>
+  <div id="dim"></div><div id="catwrap"></div>
+  <div id="over"></div>
+  <div id="clock"><div class="d" id="hh"><span>07</span></div><div class="d">:</div><div class="d" id="mm"><span>00</span></div><div class="ap" id="ap">AM</div></div>
+  <div id="cap"></div>
+  <div id="hook"></div>
+  <div id="endc"></div>
+  <div id="flash"></div>
+</div>
+<script src="../../engine/lib.js"></script>
+<script src="../../engine/botanica.js"></script>
+<script src="beats.js"></script>
+<script>
+const st = document.getElementById('stage');
+const BB = window.BEATS; const b = k => BB[k];
+const SC = [
+  { k: 0, h: '07', m: '00', ap: 'AM', cap: 'Me despierto <em>llena</em> de energía', capFix: 'Me despierto <em>lleno</em> de energía', sm: '',
+    sky: ['#f6b9a9', '#f9dca8', '#fde9c9'], wall: ['#fbefe4', '#f5e3d6'], sun: [0.5, 0.82, '#ffd28a'], cur: 0.25 },
+  { k: 4, h: '08', m: '30', ap: 'AM', capFix: 'Reviso la agenda <em>de Claudia</em>', sm: 'hay horas a domicilio y online',
+    sky: ['#bfe0ef', '#e3f0ee', '#f7f1df'], wall: ['#fbf3ea', '#f3e9dd'], sun: [0.72, 0.42, '#ffe7a8'], cur: 0 },
+  { k: 8, h: '10', m: '00', ap: 'AM', capFix: 'Estudio las <em>38 flores</em>', sm: 'hoy toca: Impatiens',
+    sky: ['#9fd0ea', '#cfe7ef', '#eef6ef'], wall: ['#f8f4ec', '#efe9dc'], sun: [0.78, 0.22, '#fff1c2'], cur: 0 },
+  { k: 12, h: '13', m: '00', ap: 'PM', capFix: 'Siesta <em>obligatoria</em>', sm: '(no negociable)',
+    sky: ['#d9c3a3', '#e8d6b8', '#efe1c8'], wall: ['#efe2d2', '#e3d2bf'], sun: [0.5, 0.12, '#ffe1a0'], cur: 0.85 },
+  { k: 16, h: '16', m: '00', ap: 'PM', capFix: 'Superviso las <em>consultas online</em>', sm: '(solo miro, no opino)',
+    sky: ['#f6cf95', '#f8dfb0', '#fbecd0'], wall: ['#fbf0e2', '#f3e2cc'], sun: [0.3, 0.45, '#ffcf7a'], cur: 0 },
+  { k: 20, h: '19', m: '00', ap: 'PM', capFix: 'Te recuerdo que la consulta <em>está a $10.000</em>', sm: '',
+    sky: ['#7b3f78', '#d9767a', '#f4b07a'], wall: ['#f3e1d8', '#e8cfc6'], sun: [0.25, 0.86, '#ffb070'], cur: 0.1 },
+  { k: 24, h: '21', m: '00', ap: 'PM', capFix: 'A dormir. Mañana, <em>más bienestar</em>', sm: '',
+    sky: ['#1f0f2e', '#3B1640', '#5E2560'], wall: ['#e2d3dc', '#d6c3cf'], sun: [0.7, 0.3, '#f6efd9'], cur: 0.35 },
+];
+const TEND = b(30);
+SC.forEach((s, i) => { s.t = b(s.k); s.t1 = i + 1 < SC.length ? b(SC[i + 1].k) : TEND; });
+
+const wall = document.getElementById('wall'), sky = document.querySelector('#win .sky'), sun = document.getElementById('sun');
+const c1 = document.getElementById('c1'), c2 = document.getElementById('c2'), stars = document.getElementById('stars');
+const curtL = document.getElementById('curtL'), curtR = document.getElementById('curtR');
+const cap = document.getElementById('cap'), hh = document.getElementById('hh'), mm = document.getElementById('mm'), ap = document.getElementById('ap');
+const props = document.getElementById('props'), over = document.getElementById('over'), endc = document.getElementById('endc');
+for (let i = 0; i < 26; i++) { const s = P.el('div', 'abs', stars); const R = P.rng(100 + i); P.style(s, { left: R() * 100 + '%', top: R() * 80 + '%', width: '6px', height: '6px', borderRadius: '50%', background: '#fff6dd' }); }
+
+// utilerias (planta, libros, frasco, notebook, etiqueta)
+props.innerHTML = `
+ <svg style="position:absolute;left:70px;top:1110px;width:220px;height:300px" viewBox="0 0 220 300">
+   <path d="M60 300 L70 210 L150 210 L160 300 Z" fill="#C9A25E"/><rect x="62" y="200" width="96" height="22" rx="6" fill="#D9B77A"/>
+   <g fill="#4F6B52"><path d="M110 205 C90 150 50 120 30 70 C70 90 100 130 110 205Z"/><path d="M110 205 C120 140 160 110 190 60 C170 120 140 160 110 205Z"/>
+   <path d="M110 205 C105 150 100 90 115 20 C130 90 125 150 110 205Z" fill="#6c8a6c"/><path d="M110 205 C80 180 40 175 10 150 C50 150 90 170 110 205Z" fill="#6c8a6c"/></g></svg>
+ <svg id="frasco" style="position:absolute;left:820px;top:1190px;width:110px;height:200px" viewBox="0 0 110 200">
+   <rect x="38" y="0" width="34" height="46" rx="12" fill="#2a1c22"/><rect x="34" y="42" width="42" height="18" rx="4" fill="#1e1418"/>
+   <path d="M30 60 h50 q10 0 14 14 l6 26 v86 q0 14 -14 14 h-62 q-14 0 -14 -14 v-86 l6 -26 q4 -14 14 -14z" fill="#9a5a22"/>
+   <rect x="16" y="110" width="78" height="60" rx="6" fill="#fffaf2"/><text x="55" y="148" text-anchor="middle" font-family="Playfair Display" font-style="italic" font-size="24" fill="#5E2560">SOS</text></svg>`;
+const laptop = P.el('div', 'abs', props);
+laptop.innerHTML = `<svg viewBox="0 0 420 300" style="width:100%;height:100%"><rect x="20" y="10" width="380" height="240" rx="18" fill="#2C2A2E"/><rect x="36" y="26" width="348" height="208" rx="8" fill="#FBF7F1"/>
+  <rect x="52" y="42" width="316" height="176" rx="8" fill="#DDE3CF"/><circle cx="210" cy="112" r="40" fill="#fff"/><image href="../../assets/logo/loto_color.png" x="176" y="86" width="68" height="54"/>
+  <text x="210" y="190" text-anchor="middle" font-family="Montserrat" font-weight="700" font-size="22" fill="#4F6B52">Videollamada · Prajim</text>
+  <circle cx="330" cy="60" r="8" fill="#e05a5a"/><path d="M0 250 h420 l-30 40 h-360 z" fill="#3a373d"/></svg>`;
+P.style(laptop, { left: '640px', top: '1120px', width: '400px', height: '290px', display: 'none', zIndex: 12 });
+st.appendChild(laptop);
+const tag = P.el('div', 'abs', props);
+tag.innerHTML = `<svg viewBox="0 0 300 200" style="width:100%;height:100%;overflow:visible"><line x1="60" y1="-150" x2="60" y2="44" stroke="#C9A25E" stroke-width="4"/>
+  <path d="M30 40 h220 q20 0 20 20 v90 q0 20 -20 20 h-220 l-30 -65 z" fill="#5E2560"/><circle cx="40" cy="105" r="10" fill="#FBF7F1"/>
+  <text x="155" y="125" text-anchor="middle" font-family="Playfair Display" font-weight="700" font-size="62" fill="#fff">$10.000</text></svg>`;
+P.style(tag, { left: '735px', top: '640px', width: '250px', height: '165px', transformOrigin: '47px -117px', display: 'none', zIndex: 13 });
+st.appendChild(tag);
+// laminas que salen del libro
+const doodles = ['impatiens', 'rockRose', 'cherryPlum'].map((n, i) => {
+  const d = P.el('div', 'abs', over); P.style(d, { width: '250px', height: '316px', display: 'none', filter: 'drop-shadow(0 0 2px rgba(255,255,255,.9))' });
+  d._c = B.mount(d, n === 'impatiens' ? 'mimulus' : n, { color: '#5E2560' });
+  return d;
+});
+
+const catWrap = document.getElementById('catwrap');
+const cat = new P.Cat(catWrap);
+const bubble = P.el('div', 'bubble', st); const bubbleTxt = P.el('span', '', bubble);
+const fx = new P.FX(st, 23);
+const flash = document.getElementById('flash');
+// globos por escena: [texto, inicio relativo, duracion]
+const BUB = { 0: ['¡Buenos días! 🌸', 1.5, 1.6], 1: ['¿Agendamos? 📅', 1.0, 2.0], 2: ['Impatiens… ¡esa es para mí! 😹', 1.2, 2.0], 4: ['Todo en orden 👌', 1.3, 1.8], 5: ['¡A domicilio u online! 😼', 1.2, 2.0], 6: ['Buenas noches 🌙', 0.6, 1.4] };
+const E = s => s.replace(/(\p{Extended_Pictographic}+)/gu, '<span style="font-family:Noto Color Emoji;font-style:normal">$1</span>');
+
+// gancho
+const hook = document.getElementById('hook');
+hook.innerHTML = `<div style="font-family:Montserrat;font-weight:700;font-size:26px;letter-spacing:.3em;color:#4F6B52;text-transform:uppercase">Un día en la vida de</div>
+  <div style="font-family:'Playfair Display';font-size:84px;line-height:1.02;color:#3B1640;margin-top:8px">el gatito <em style="color:#5E2560">de Prajim</em></div>
+  <div style="font-family:Montserrat;font-weight:600;font-size:30px;color:#5E2560;margin-top:12px">Gerente de Bienestar 🐾</div>`;
+hook.lastElementChild.innerHTML = E(hook.lastElementChild.innerHTML);
+const hookW = P.splitWords(hook.children[1]);
+
+endc.innerHTML = `<div style="position:absolute;left:0;right:0;top:296px;text-align:center"><img src="../../assets/logo/loto_dorado.png" style="width:110px"></div>
+  <div style="position:absolute;left:0;right:0;top:384px;text-align:center;font-family:'Cormorant Garamond';font-weight:600;font-size:100px;letter-spacing:.24em;padding-left:.24em;color:#fff" id="brand">PRAJIM</div>
+  <div style="position:absolute;left:0;right:0;top:508px;text-align:center;font-family:Montserrat;font-weight:600;font-size:24px;letter-spacing:.3em;color:#F1D9A6">TERAPIA FLORAL · FLORES DE BACH</div>
+  <div style="position:absolute;left:0;right:0;top:568px;text-align:center" id="pw"><div class="wa-pill">${P.chatIcon('#fff')}<span>9 8794 6066</span></div></div>
+  <div style="position:absolute;left:0;right:0;top:700px;text-align:center;font-family:Montserrat;font-weight:600;font-size:32px;color:#fff" id="sig">${E('Sígueme para ver más de mi día 🐾')}</div>`;
+
+function skyPaint(s, t) {
+  sky.style.background = `linear-gradient(180deg, ${s.sky[0]}, ${s.sky[1]} 55%, ${s.sky[2]})`;
+  wall.style.background = `linear-gradient(180deg, ${s.wall[0]}, ${s.wall[1]})`;
+  const night = s.h === '21';
+  sun.style.background = night ? '#f6efd9' : `radial-gradient(circle, #fff6dc, ${s.sun[2]} 55%, rgba(255,210,140,0) 72%)`;
+  const sz = night ? 90 : 200;
+  P.style(sun, { width: sz + 'px', height: sz + 'px', left: `calc(${s.sun[0] * 100}% - ${sz / 2}px)`, top: `calc(${s.sun[1] * 100}% - ${sz / 2}px)`,
+    boxShadow: night ? '0 0 60px 20px rgba(246,239,217,.35)' : 'none' });
+  stars.style.opacity = night ? 1 : 0;
+  [...stars.children].forEach((e, i) => e.style.opacity = 0.4 + 0.6 * Math.abs(Math.sin(t * 2 + i)));
+  c1.style.opacity = c2.style.opacity = night ? 0.15 : 1;
+  P.style(c1, { left: (20 + 40 * ((t * 0.02 + 0.1) % 1)) + '%', top: '22%' });
+  P.style(c2, { left: (60 - 30 * ((t * 0.015 + 0.3) % 1)) + '%', top: '40%' });
+}
+
+window.renderFrame = async function (t) {
+  fx.clear();
+  let i = 0; SC.forEach((s, k) => { if (t >= s.t) i = k; });
+  const s = SC[i], lt = t - s.t;
+  skyPaint(s, t);
+  // cortinas
+  const prevCur = i > 0 ? SC[i - 1].cur : s.cur;
+  const cur = P.lerp(prevCur, s.cur, P.ease(t, s.t, s.t + 0.6, 'inOutCubic'));
+  curtL.style.transform = `scaleX(${0.8 + cur * 2.2})`; curtR.style.transform = `scaleX(${0.8 + cur * 2.2})`;
+  // reloj con rodillo
+  const roll = (el, val, prev, k) => {
+    el.innerHTML = `<span>${prev}</span><span>${val}</span>`;
+    el.firstChild.style.transform = el.lastChild.style.transform = `translateY(${-92 * k}px)`;
+  };
+  const rk = P.ease(t, s.t, s.t + 0.35, 'outBack');
+  const ps = i > 0 ? SC[i - 1] : s;
+  roll(hh, s.h, ps.h, i > 0 ? rk : 1); roll(mm, s.m, ps.m, i > 0 ? rk : 1);
+  ap.textContent = s.ap;
+  document.getElementById('clock').style.opacity = P.prog(t, 1.4, 1.6) * (1 - P.prog(t, b(26) - 0.1, b(26) + 0.2));
+  // texto de la escena
+  const hookOn = t < 1.55;
+  hook.style.display = hookOn ? 'block' : 'none';
+  if (hookOn) {
+    P.maskIn(hookW, t, -0.3, { stagger: 0.06, dur: 0.45, ease: 'outExpo', outAt: 1.25 });
+    hook.children[0].style.opacity = hook.children[2].style.opacity = 1 - P.prog(t, 1.2, 1.45);
+  }
+  cap.style.display = !hookOn && i < 6 ? 'block' : (i === 6 && lt < 2.2 ? 'block' : 'none');
+  if (cap._i !== i) { cap.innerHTML = s.capFix + (s.sm ? `<small>${s.sm}</small>` : ''); cap._w = P.splitWords(cap); cap._i = i; }
+  const cst = i === 0 ? 1.45 : s.t + 0.1;
+  P.maskIn(cap._w, t, cst, { stagger: 0.05, dur: 0.4, ease: 'outExpo', outAt: s.t1 - 0.3 });
+  // utilerias por escena
+  laptop.style.display = i === 4 ? 'block' : 'none'; document.getElementById('frasco').style.display = i === 4 ? 'none' : 'block';
+  if (i === 4) { const k = P.ease(t, s.t + 0.2, s.t + 0.6, 'outBack'); laptop.style.transform = `translateY(${(1 - k) * 300}px) scale(${0.8 + 0.2 * k})`; }
+  tag.style.display = i === 5 ? 'block' : 'none';
+  if (i === 5) { const k = P.ease(t, s.t + 0.3, s.t + 0.8, 'outBack'); tag.style.transform = `translateY(${(1 - k) * -700}px) rotate(${8 * Math.sin((t - s.t) * 3) * Math.exp(-(t - s.t - 0.8) * 1.2)}deg)`; }
+  doodles.forEach((d, k) => {
+    const on = i === 2;
+    d.style.display = on ? 'block' : 'none';
+    if (!on) return;
+    const t0 = s.t + 0.3 + k * 0.35;
+    const p = P.ease(t, t0, t0 + 1.6, 'outCubic');
+    const x = 420 + [-370, 380, 400][k] * p, y = 1000 - [380, 400, 60][k] * p;
+    P.style(d, { left: x + 'px', top: y + 'px', opacity: P.clamp(P.prog(t, t0, t0 + 0.2)) * (1 - P.prog(t, s.t1 - 0.3, s.t1)) });
+    d.style.transform = `scale(${0.4 + 0.6 * p}) rotate(${[-12, 0, 10][k]}deg)`;
+    d._c.draw(t, t0, 1.2, 0.4);
+  });
+  // gatito
+  const cin = P.ease(t, 0.0, 0.55, 'outBack');
+  let face = 'normal', mouth = 0, tilt = 1.5 * Math.sin(t * 1.9), squash = 0, breathe = true;
+  const blinks = [2.6, 5.2, 7.6, 9.6, 15.3, 18.1, 22.4];
+  if (P.Cat.blinkAt(t, blinks)) face = 'blink';
+  if (i === 0) { // bostezo
+    const y = P.env(t, 0.55, 0.95, 1.25, 1.5);
+    if (y > 0.05) { face = 'blink'; mouth = 1.0 * y; tilt = -3 * y; squash = 0.03 * y; }
+  }
+  if (i === 3) { face = 'blink'; breathe = true; tilt = -2.5 + 0.8 * Math.sin(t * 1.4); }
+  if (i === 5 && lt > 1.0) face = lt < 1.5 ? 'wink' : 'happy';
+  if (i === 6) face = lt > 1.6 ? 'blink' : 'happy';
+  const bub = BUB[i];
+  if (bub) mouth = Math.max(mouth, P.Cat.talk(t, s.t + bub[1], s.t + bub[1] + Math.min(bub[2], 1.1)));
+  const yIn = 1920 - (1920 - 760) * cin;
+  const sleepBob = i === 3 ? 6 * Math.sin(t * 1.4) : 0;
+  cat.set(t, { x: 274, y: yIn + sleepBob, scale: 0.5, face, mouth, tilt, squash, breathe });
+  if (i === 5 && lt > 1.0) fx.burst(t, s.t + 1.0, 760, 930, 14, 5, { speed: 260, size: 13, hearts: true, heartColor: '#E46A8C', life: 1.1 });
+  // zzz
+  if (i === 3) {
+    for (let k = 0; k < 3; k++) {
+      const ph = ((t - s.t) * 0.7 + k / 3) % 1;
+      fx.x.save(); fx.x.globalAlpha = Math.sin(ph * Math.PI) * 0.9; fx.x.fillStyle = '#5E2560';
+      fx.x.font = `italic 600 ${50 + ph * 40}px Playfair Display`; fx.x.fillText('z', 720 + ph * 120 + k * 10, 860 - ph * 260); fx.x.restore();
+    }
+  }
+  if (i === 0 && t < 1.5) {
+    for (let k = 0; k < 2; k++) { const ph = (t * 0.8 + k / 2) % 1; fx.x.save(); fx.x.globalAlpha = Math.sin(ph * Math.PI) * 0.7 * (1 - P.prog(t, 0.9, 1.3)); fx.x.fillStyle = '#5E2560'; fx.x.font = `italic 600 ${40 + ph * 30}px Playfair Display`; fx.x.fillText('z', 730 + ph * 90, 860 - ph * 200); fx.x.restore(); }
+  }
+  fx.dust(t, 14, 3, { speed: 14, size: 3, alpha: i === 6 ? 0.5 : 0.35, color: i === 6 ? '255,240,200' : '255,215,150', area: [250, 560, 580, 700] });
+  // globo
+  if (bub && lt >= bub[1] - 0.05 && lt < bub[1] + bub[2]) {
+    bubble.style.display = 'block';
+    const k = P.ease(t, s.t + bub[1] - 0.05, s.t + bub[1] + 0.25, 'outBack') * (1 - P.prog(t, s.t + bub[1] + bub[2] - 0.15, s.t + bub[1] + bub[2]));
+    bubbleTxt.innerHTML = E(bub[0]);
+    const right = bub[0].length > 18;
+    P.style(bubble, { left: right ? '90px' : '120px', top: '600px', transform: `scale(${k})`, opacity: P.clamp(k * 2), transformOrigin: '80% 100%' });
+    bubble.classList.add('tail-right');
+  } else bubble.style.display = 'none';
+  // final
+  const eOn = t >= b(26);
+  if (!eOn) document.getElementById('dim').style.opacity = 0;
+  endc.style.display = eOn ? 'block' : 'none';
+  if (eOn) {
+    const k0 = b(26);
+    document.getElementById('dim').style.opacity = 0.6 * P.prog(t, k0, k0 + 0.5);
+    const ch = endc.children;
+    [...ch].forEach((e, j) => { const k = P.ease(t, k0 + 0.1 + j * 0.15, k0 + 0.5 + j * 0.15, 'outBack'); e.style.opacity = P.clamp(k); e.style.transform = `translateY(${(1 - k) * 30}px)`; });
+    fx.burst(t, k0 + 0.15, 540, 390, 14, 4, { speed: 240, size: 12, life: 1.1 });
+  }
+  flash.style.opacity = 0.35 * Math.max(...SC.slice(1).map(x => P.env(t, x.t - 0.06, x.t, x.t, x.t + 0.18)));
+  await P.waitAll();
+};
+</script></body></html>

@@ -1,0 +1,169 @@
+{
+ "duration": 22.0,
+ "music": {
+  "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/music/1037.mp3",
+  "offset": 0.0,
+  "at": 0.0,
+  "gain_db": 0,
+  "fade_in": 0.0,
+  "fade_out": 1.2
+ },
+ "sfx": [
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2633.wav",
+   "t": 0.0,
+   "gain_db": -15
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/3109.wav",
+   "t": 0.15,
+   "gain_db": -19,
+   "pitch": -9.97
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/3109.wav",
+   "t": 0.27,
+   "gain_db": -19,
+   "pitch": -6.97
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/3109.wav",
+   "t": 0.39,
+   "gain_db": -19,
+   "pitch": -2.97
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/3109.wav",
+   "t": 0.51,
+   "gain_db": -19,
+   "pitch": 2.03
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2364.wav",
+   "t": 1.1,
+   "gain_db": -19
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/1061.wav",
+   "t": 2.0,
+   "gain_db": -14
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/1061.wav",
+   "t": 2.83,
+   "gain_db": -14
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/1061.wav",
+   "t": 3.66,
+   "gain_db": -14
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/1489.wav",
+   "t": 4.38,
+   "gain_db": -17
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2638.wav",
+   "t": 4.5,
+   "gain_db": -17,
+   "pitch": 1.82
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/870.wav",
+   "t": 4.9,
+   "gain_db": -21,
+   "pitch": -1.3,
+   "fade_out": 1.0
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/1489.wav",
+   "t": 7.13,
+   "gain_db": -17
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2638.wav",
+   "t": 7.25,
+   "gain_db": -17,
+   "pitch": 1.82
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/870.wav",
+   "t": 7.65,
+   "gain_db": -21,
+   "pitch": -1.3,
+   "fade_out": 1.0
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/1489.wav",
+   "t": 9.88,
+   "gain_db": -17
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2638.wav",
+   "t": 10.0,
+   "gain_db": -17,
+   "pitch": 1.82
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/870.wav",
+   "t": 10.4,
+   "gain_db": -21,
+   "pitch": -1.3,
+   "fade_out": 1.0
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/1489.wav",
+   "t": 12.63,
+   "gain_db": -17
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2638.wav",
+   "t": 12.75,
+   "gain_db": -17,
+   "pitch": 1.82
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/870.wav",
+   "t": 13.15,
+   "gain_db": -21,
+   "pitch": -1.3,
+   "fade_out": 1.0
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2628.wav",
+   "t": 15.5,
+   "gain_db": -16,
+   "pitch": -5,
+   "trim": [
+    0,
+    4
+   ],
+   "fade_out": 1.2
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2358.wav",
+   "t": 17.1,
+   "gain_db": -18
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/2357.wav",
+   "t": 18.15,
+   "gain_db": -17
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/93.wav",
+   "t": 18.3,
+   "gain_db": -18
+  },
+  {
+   "file": "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/stock/sfx/864.wav",
+   "t": 20.8,
+   "gain_db": -17,
+   "pitch": -4,
+   "fade_out": 0.6
+  }
+ ],
+ "target_lufs": -14,
+ "tp": -1.0
+}
