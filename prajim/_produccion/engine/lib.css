@@ -1,0 +1,53 @@
+@import url("../assets/fonts/local.css");
+
+:root {
+  --ciruela: #5E2560;
+  --ciruela-p: #3B1640;
+  --salvia: #DDE3CF;
+  --salvia-p: #4F6B52;
+  --crema: #FBF7F1;
+  --dorado: #D9B77A;
+  --dorado-p: #C9A25E;
+  --texto: #2C2A2E;
+  --noche: #12070F;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #000; }
+body { font-family: 'Montserrat', sans-serif; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+#stage { position: absolute; inset: 0; width: 1080px; height: 1920px; overflow: hidden; isolation: isolate; }
+
+.layer { position: absolute; inset: 0; }
+.video { position: absolute; inset: 0; z-index: 0; isolation: isolate; overflow: hidden; }
+.video img { position: absolute; left: 0; top: 0; width: 1080px; height: 1920px; object-fit: cover; transform-origin: 50% 50%; }
+.abs { position: absolute; }
+.center-x { left: 0; right: 0; text-align: center; }
+
+.serif { font-family: 'Playfair Display', serif; }
+.serif-i { font-family: 'Playfair Display', serif; font-style: italic; }
+.marca { font-family: 'Cormorant Garamond', serif; font-weight: 600; letter-spacing: 0.24em; }
+.label { font-family: 'Montserrat', sans-serif; font-weight: 600; text-transform: uppercase; letter-spacing: 0.32em; }
+
+/* revelado con mascara: cada palabra va en .m > .mi */
+.m { display: inline-block; overflow: hidden; vertical-align: top; padding: 0.08em 0.04em 0.16em; margin: -0.08em -0.04em -0.16em; }
+.mi { display: inline-block; will-change: transform; }
+.ch { display: inline-block; white-space: pre; }
+
+.fx-canvas { position: absolute; inset: 0; pointer-events: none; }
+.leak { position: absolute; inset: -20%; mix-blend-mode: screen; pointer-events: none; }
+
+.bubble {
+  position: absolute; background: #fff; color: var(--ciruela-p); border-radius: 44px; padding: 26px 38px;
+  font-family: 'Playfair Display', serif; font-style: italic; font-size: 54px; line-height: 1.15; white-space: nowrap;
+  box-shadow: 0 14px 40px rgba(20, 5, 20, 0.28); transform-origin: 20% 100%;
+}
+.bubble::after { content: ''; position: absolute; width: 46px; height: 46px; background: #fff; bottom: -14px; left: 70px;
+  transform: rotate(45deg); border-radius: 6px; }
+.bubble.tail-right::after { left: auto; right: 70px; }
+
+.wa-pill {
+  display: inline-flex; align-items: center; gap: 22px; background: var(--ciruela); color: #fff; border-radius: 999px;
+  padding: 22px 46px 22px 30px; font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 62px; letter-spacing: 0.01em;
+  box-shadow: 0 14px 36px rgba(59, 22, 64, 0.35);
+}
+.wa-pill svg { width: 64px; height: 64px; }

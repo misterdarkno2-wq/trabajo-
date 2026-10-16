@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  body { background: #0b0409; }
+  #shade { position: absolute; inset: 0; z-index: 2; pointer-events: none; }
+  #smoke { position: absolute; inset: 0; z-index: 3; mix-blend-mode: screen; opacity: 0; }
+  #smoke img { width: 1080px; height: 1920px; }
+  #numeral { position: absolute; left: 0; right: 0; top: 330px; text-align: center; z-index: 4; font-family: 'Playfair Display', serif;
+             font-size: 760px; line-height: 1; color: rgba(227, 197, 142, 0.07); font-weight: 400; }
+  #plate { position: absolute; left: 290px; top: 470px; width: 500px; height: 633px; z-index: 5; filter: drop-shadow(0 0 7px rgba(227, 197, 142, 0.55)); }
+  #plate svg { width: 100%; height: 100%; overflow: visible; }
+  #arch { position: absolute; left: 230px; top: 440px; width: 620px; height: 700px; z-index: 5; }
+  .t { position: absolute; z-index: 10; left: 70px; right: 70px; text-align: center; color: #FBF2E4; }
+  .lab { font-family: 'Montserrat'; font-weight: 600; font-size: 26px; letter-spacing: 0.34em; color: #E3C58E; text-transform: uppercase; }
+  .name { font-family: 'Playfair Display'; font-style: italic; font-size: 122px; line-height: 1.05; text-shadow: 0 6px 30px rgba(0,0,0,.6); }
+  .desc { font-family: 'Playfair Display'; font-size: 58px; line-height: 1.18; text-shadow: 0 4px 22px rgba(0,0,0,.75); }
+  .desc em, .hook em, .q em { color: #E8C987; font-style: italic; }
+  .hook { font-family: 'Playfair Display'; color: #FBF2E4; text-shadow: 0 8px 40px rgba(0,0,0,.7); }
+  .gold { color: #E8C987; }
+  #flash { position: absolute; inset: 0; z-index: 30; background: radial-gradient(ellipse at 50% 60%, rgba(255,214,150,.9), rgba(255,170,90,.0) 70%); opacity: 0; mix-blend-mode: screen; }
+  #leak { z-index: 6; }
+  .romans { font-family: 'Playfair Display'; font-size: 64px; color: #E8C987; letter-spacing: 0.18em; }
+  .romans span { display: inline-block; margin: 0 14px; }
+  .brand { font-family: 'Cormorant Garamond'; font-weight: 600; font-size: 116px; letter-spacing: 0.24em; color: #FBF2E4; padding-left: 0.24em; }
+  .sub { display: flex; align-items: center; justify-content: center; gap: 22px; font-family: 'Montserrat'; font-weight: 600;
+         font-size: 24px; letter-spacing: 0.3em; color: #E3C58E; }
+  .sub i { display: block; width: 90px; height: 2px; background: linear-gradient(90deg, transparent, #D9B77A); }
+  .sub i.r { background: linear-gradient(90deg, #D9B77A, transparent); }
+  #catwrap { position: absolute; inset: 0; z-index: 20; }
+  .bubble { z-index: 22; }
+</style></head>
+<body><div id="stage"></div>
+<script src="../../engine/lib.js"></script>
+<script src="../../engine/botanica.js"></script>
+<script>
+const SP = '/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/clips/r01/';
+const st = document.getElementById('stage');
+const b = k => 0.046 + 0.3949 * k;              // pulsos de la musica (152 bpm)
+const T = { s1: b(10), s2: b(21), s3: b(32), s4: b(43), s5: b(54), q: b(64), end: b(71), dur: 31.7 };
+
+// ---------- capas de video ----------
+const clips = {
+  vela: new P.Seq(st, SP + 'vela', { frames: 126 }),
+  humo: new P.Seq(st, SP + 'humo', { frames: 150 }),
+  velas: new P.Seq(st, SP + 'velas', { frames: 138 }),
+  rosa: new P.Seq(st, SP + 'rosa', { frames: 150 }),
+  bosque: new P.Seq(st, SP + 'bosque', { frames: 150 }),
+  mesa: new P.Seq(st, SP + 'mesa', { frames: 150 }),
+  luna: new P.Seq(st, SP + 'luna', { frames: 210 }),
+};
+const shade = P.el('div', '', st); shade.id = 'shade';
+const smokeWrap = P.el('div', '', st); smokeWrap.id = 'smoke';
+const smoke = new P.Seq(smokeWrap, SP + 'humo2', { frames: 180, loop: true });
+smoke.wrap.style.position = 'absolute';
+const numeral = P.el('div', '', st); numeral.id = 'numeral';
+const archWrap = P.el('div', '', st); archWrap.id = 'arch';
+archWrap.innerHTML = `<svg viewBox="0 0 620 700" style="width:100%;height:100%;overflow:visible"><path id="archp" d="M20 690 L20 300 A290 290 0 0 1 600 300 L600 690" fill="none" stroke="#E3C58E" stroke-width="2" pathLength="1" stroke-dasharray="1 1"/><path id="archp2" d="M36 690 L36 300 A274 274 0 0 1 584 300 L584 690" fill="none" stroke="#E3C58E" stroke-width="1" opacity=".6" pathLength="1" stroke-dasharray="1 1"/></svg>`;
+const plateWrap = P.el('div', '', st); plateWrap.id = 'plate';
+const leak = P.el('div', 'leak', st); leak.id = 'leak';
+const fx = new P.FX(st, 15);
+
+// ---------- laminas ----------
+const FLORES = [
+  { key: 'rockRose', name: 'Rock Rose', num: 'I', clip: 'humo', t: T.s1, t1: T.s2,
+    desc: 'el miedo <em>intenso</em>,<br>el susto que paraliza' },
+  { key: 'mimulus', name: 'Mimulus', num: 'II', clip: 'velas', t: T.s2, t1: T.s3,
+    desc: 'los miedos con<br><em>nombre y apellido</em>' },
+  { key: 'cherryPlum', name: 'Cherry Plum', num: 'III', clip: 'rosa', t: T.s3, t1: T.s4,
+    desc: 'el miedo a<br><em>perder el control</em>' },
+  { key: 'aspen', name: 'Aspen', num: 'IV', clip: 'bosque', t: T.s4, t1: T.s5,
+    desc: 'el miedo <em>sin nombre</em>,<br>difícil de explicar' },
+  { key: 'redChestnut', name: 'Red Chestnut', num: 'V', clip: 'mesa', t: T.s5, t1: T.q,
+    desc: 'el miedo<br><em>por los que amas</em>' },
+];
+FLORES.forEach((F, i) => {
+  F.plateEl = P.el('div', 'abs', plateWrap);
+  P.style(F.plateEl, { inset: '0' });
+  F.ctl = B.mount(F.plateEl, F.key);
+  F.lab = P.el('div', 't lab', st, `Flor ${F.num} de V`); F.lab.style.top = '300px';
+  F.nameEl = P.el('div', 't name', st, F.name); F.nameEl.style.top = '338px';
+  F.nameW = P.splitWords(F.nameEl);
+  F.descEl = P.el('div', 't desc', st, F.desc); F.descEl.style.top = '1100px';
+  F.descW = P.splitWords(F.descEl);
+  F.labC = P.splitChars(F.lab);
+});
+
+// ---------- gancho ----------
+const hLab = P.el('div', 't lab', st, 'Según el Dr. Edward Bach'); hLab.style.top = '330px';
+const hLabC = P.splitChars(hLab);
+const h1 = P.el('div', 't hook', st, '<span class="gold">5</span> flores'); P.style(h1, { top: '380px', fontSize: '200px', lineHeight: '1.05' });
+const h1W = P.splitWords(h1);
+const h2 = P.el('div', 't hook', st, 'para el <em>miedo</em>'); P.style(h2, { top: '612px', fontSize: '118px', lineHeight: '1.1' });
+const h2W = P.splitWords(h2);
+const h3 = P.el('div', 't', st, '¿Con cuál te identificas?'); P.style(h3, { top: '800px', fontFamily: 'Montserrat', fontWeight: 500, fontSize: '42px', letterSpacing: '0.02em', color: '#F3E6D2' });
+const h3W = P.splitWords(h3);
+
+// ---------- cierre ----------
+const q1 = P.el('div', 't hook q', st, '¿Con cuál te<br><em>identificas</em>?'); P.style(q1, { top: '300px', fontSize: '104px', lineHeight: '1.08' });
+const q1W = P.splitWords(q1);
+const q2 = P.el('div', 't lab', st, 'Comenta el número'); q2.style.top = '560px';
+const q2C = P.splitChars(q2);
+const q3 = P.el('div', 't romans', st, '<span>I</span><span>II</span><span>III</span><span>IV</span><span>V</span>'); q3.style.top = '610px';
+const q3S = [...q3.querySelectorAll('span')];
+
+const endWrap = P.el('div', 'abs', st); P.style(endWrap, { inset: 0, zIndex: 12 });
+const loto = P.el('img', 'abs', endWrap); loto.src = P.ASSETS + 'logo/loto_dorado.png'; P.style(loto, { left: '465px', top: '292px', width: '150px' });
+const brand = P.el('div', 't brand', endWrap, 'PRAJIM'); brand.style.top = '412px';
+const brandC = P.splitChars(brand);
+const sub = P.el('div', 't sub', endWrap, '<i></i><span>Terapia floral · Flores de Bach</span><i class="r"></i>'); sub.style.top = '552px';
+const agenda = P.el('div', 't', endWrap, 'Agenda tu consulta'); P.style(agenda, { top: '606px', fontFamily: 'Playfair Display', fontStyle: 'italic', fontSize: '56px', color: '#FBF2E4' });
+const agendaW = P.splitWords(agenda);
+const pillWrap = P.el('div', 't', endWrap); pillWrap.style.top = '690px';
+const pill = P.el('div', 'wa-pill', pillWrap, P.chatIcon('#fff') + '<span>9 8794 6066</span>');
+const lugar = P.el('div', 't', endWrap, 'San Javier a domicilio · Online'); P.style(lugar, { top: '818px', fontFamily: 'Montserrat', fontWeight: 500, fontSize: '32px', color: '#F3E6D2', letterSpacing: '0.04em' });
+
+const catWrap = P.el('div', '', st); catWrap.id = 'catwrap';
+const cat = new P.Cat(catWrap);
+// sombrero de bruja (en coordenadas del gato, dentro del grupo de la cabeza)
+cat.acc.innerHTML = `
+ <g transform="translate(628 150) rotate(-21)">
+   <defs><linearGradient id="hatg" x1="0" x2="1"><stop offset="0" stop-color="#2a0f2e"/><stop offset=".55" stop-color="#4b1d50"/><stop offset="1" stop-color="#2a0f2e"/></linearGradient></defs>
+   <g stroke="#fff" stroke-width="16" stroke-linejoin="round" fill="#fff">
+     <ellipse cx="0" cy="0" rx="200" ry="44"/>
+     <path d="M-112 -8 C-90 -120 -40 -250 30 -330 C60 -360 110 -360 150 -320 C110 -320 80 -300 70 -270 C55 -170 75 -80 112 -8 Z"/>
+   </g>
+   <ellipse cx="0" cy="0" rx="200" ry="44" fill="url(#hatg)"/>
+   <path d="M-112 -8 C-90 -120 -40 -250 30 -330 C60 -360 110 -360 150 -320 C110 -320 80 -300 70 -270 C55 -170 75 -80 112 -8 Z" fill="url(#hatg)"/>
+   <path d="M-104 -40 C-30 -20 40 -20 104 -40 L108 -6 C40 10 -30 10 -110 -6 Z" fill="#D9B77A"/>
+   <path d="M12 -98 l9 20 22 3 -16 15 4 22 -19 -11 -19 11 4 -22 -16 -15 22 -3 z" fill="#F1D9A6"/>
+   <path d="M-60 -150 C-50 -200 -30 -240 0 -280" stroke="#7a3f80" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>
+ </g>`;
+const bubble = P.el('div', 'bubble', st); const bubbleTxt = P.el('span', '', bubble);
+const flash = P.el('div', '', st); flash.id = 'flash';
+
+const showOnly = (name) => { for (const k in clips) clips[k].show(k === name); };
+
+window.renderFrame = async function (t) {
+  fx.clear();
+  // ----- fondo -----
+  let active = 'vela', lt = t, zoom = 1.0;
+  if (t < T.s1) { active = 'vela'; lt = t; zoom = 1.12 - 0.08 * P.ease(t, 0, T.s1, 'outSine'); }
+  for (const F of FLORES) if (t >= F.t && t < F.t1) { active = F.clip; lt = t - F.t; zoom = 1.1 - 0.08 * P.ease(t, F.t, F.t1, 'linear'); }
+  if (t >= T.q) { active = 'luna'; lt = t - T.q; zoom = 1.04 + 0.04 * P.prog(t, T.q, T.dur); }
+  showOnly(active);
+  clips[active].set(lt);
+  clips[active].img.style.transform = `scale(${zoom})`;
+  // parpadeo de vela en el brillo general
+  const flick = 1 + 0.05 * P.noise1(t * 9, 3) + 0.03 * P.noise1(t * 23, 5);
+  clips[active].img.style.filter = `brightness(${(active === 'luna' ? 0.8 : active === 'vela' ? 0.95 : 0.9) * flick})`;
+  shade.style.background = t >= T.q
+    ? 'linear-gradient(180deg, rgba(10,3,10,.75) 0%, rgba(10,3,10,.35) 38%, rgba(10,3,10,.15) 60%, rgba(10,3,10,.55) 100%)'
+    : 'radial-gradient(ellipse 62% 40% at 50% 45%, rgba(12,4,12,.5), rgba(12,4,12,.08) 72%), linear-gradient(180deg, rgba(10,3,10,.62), rgba(10,3,10,.05) 30%, rgba(10,3,10,.05) 60%, rgba(10,3,10,.7))';
+
+  // ----- humo de transicion (sube en cada cambio de escena) -----
+  const cuts = [T.s1, T.s2, T.s3, T.s4, T.s5, T.q];
+  let sm = 0;
+  for (const c of cuts) sm = Math.max(sm, P.env(t, c - 0.45, c - 0.05, c + 0.05, c + 0.7));
+  smokeWrap.style.opacity = (0.15 + 0.85 * sm) * (t < T.q ? 1 : 0.5);
+  smoke.set(t, 1);
+  smoke.img.style.transform = `translateY(${-200 * sm}px) scale(1.2)`;
+  let fl = 0;
+  for (const c of cuts) fl = Math.max(fl, P.env(t, c - 0.12, c, c, c + 0.35));
+  flash.style.opacity = fl * 0.55;
+
+  // ----- gancho -----
+  const hOut = T.s1 - 0.35;
+  const flickIn = (k) => k * (0.75 + 0.25 * Math.abs(P.noise1(t * 14, 9)));
+  P.blurIn(hLabC, t, 0.05, { stagger: 0.012, dur: 0.4, blur: 8, dy: 0 });
+  hLab.style.opacity = 1 - P.prog(t, hOut, hOut + 0.3);
+  P.maskIn(h1W, t, 0.08, { stagger: 0.09, dur: 0.6, outAt: hOut, ease: 'outExpo' });
+  P.maskIn(h2W, t, 0.38, { stagger: 0.08, dur: 0.6, outAt: hOut + 0.05, ease: 'outExpo' });
+  h1.style.opacity = flickIn(P.prog(t, 0.05, 0.6)); h2.style.opacity = flickIn(P.prog(t, 0.3, 0.9));
+  P.maskIn(h3W, t, 1.9, { stagger: 0.06, dur: 0.5, outAt: hOut + 0.1 });
+  h3.style.opacity = t < 1.85 ? 0 : 1;
+  const em = h2.querySelector('em');
+  if (em) em.style.textShadow = `0 0 ${18 + 26 * P.env(t, 0.7, 1.2, 1.6, 3)}px rgba(232,201,135,${0.25 + 0.5 * P.env(t, 0.7, 1.2, 1.6, 3)})`;
+
+  // ----- flores -----
+  let anyPlate = false;
+  FLORES.forEach((F, i) => {
+    const on = t >= F.t - 0.05 && t < F.t1 + 0.05;
+    const out = F.t1 - 0.32;
+    F.plateEl.style.display = on ? 'block' : 'none';
+    for (const e of [F.lab, F.nameEl, F.descEl]) e.style.display = on ? 'block' : 'none';
+    if (!on) return;
+    anyPlate = true;
+    F.ctl.draw(t, F.t + 0.1, 1.9, 0.6);
+    const po = 1 - P.prog(t, out, out + 0.3);
+    plateWrap.style.opacity = po;
+    plateWrap.style.transform = `scale(${0.96 + 0.04 * P.ease(t, F.t, F.t + 1.2, 'outCubic')}) translateY(${-8 * P.prog(t, F.t, F.t1)}px)`;
+    P.blurIn(F.labC, t, F.t + 0.05, { stagger: 0.015, dur: 0.35, blur: 6, dy: 0 });
+    F.lab.style.opacity = po;
+    P.maskIn(F.nameW, t, F.t + 0.12, { stagger: 0.1, dur: 0.6, ease: 'outExpo', outAt: out });
+    P.maskIn(F.descW, t, F.t + 0.75, { stagger: 0.07, dur: 0.55, outAt: out + 0.03 });
+    numeral.textContent = F.num;
+    numeral.style.opacity = P.env(t, F.t, F.t + 0.8, out, out + 0.3);
+    numeral.style.transform = `translateY(${30 * P.prog(t, F.t, F.t1)}px)`;
+    // arco
+    const ak = P.ease(t, F.t + 0.05, F.t + 1.4, 'inOutSine');
+    document.getElementById('archp').style.strokeDashoffset = 1 - ak;
+    document.getElementById('archp2').style.strokeDashoffset = 1 - P.ease(t, F.t + 0.25, F.t + 1.6, 'inOutSine');
+    archWrap.style.opacity = 0.55 * po;
+  });
+  if (!anyPlate) { numeral.style.opacity = 0; archWrap.style.opacity = 0; }
+
+  // polvo dorado (brasas)
+  fx.dust(t, 26, 12, { speed: 34, size: 3.2, alpha: t < T.q ? 0.55 : 0.4, color: '255,214,150' });
+  P.leak(leak, t, 0.18 + 0.12 * P.noise1(t * 2, 4), 'rgba(255,170,90,0.5)', 'rgba(150,60,140,0.35)');
+
+  // ----- cierre: pregunta -----
+  const qOn = t >= T.q - 0.1 && t < T.end + 0.05;
+  for (const e of [q1, q2, q3]) e.style.display = qOn ? 'block' : 'none';
+  if (qOn) {
+    const qo = T.end - 0.3;
+    P.maskIn(q1W, t, T.q + 0.05, { stagger: 0.08, dur: 0.6, ease: 'outExpo', outAt: qo });
+    P.blurIn(q2C, t, T.q + 0.6, { stagger: 0.02, dur: 0.35, blur: 6, dy: 0 });
+    q2.style.opacity = 1 - P.prog(t, qo, qo + 0.25);
+    q3S.forEach((s, i) => {
+      const k = P.ease(t, T.q + 0.85 + i * 0.12, T.q + 1.25 + i * 0.12, 'outBack');
+      const pulse = P.env(t, T.q + 1.6 + i * 0.12, T.q + 1.75 + i * 0.12, T.q + 1.8 + i * 0.12, T.q + 2.1 + i * 0.12);
+      s.style.transform = `translateY(${(1 - k) * 40}px) scale(${1 + 0.18 * pulse})`;
+      s.style.opacity = P.clamp(k) * (1 - P.prog(t, qo, qo + 0.25));
+    });
+  }
+  // ----- cierre: marca -----
+  const eOn = t >= T.end - 0.05;
+  endWrap.style.display = eOn ? 'block' : 'none';
+  if (eOn) {
+    const k = P.ease(t, T.end, T.end + 0.7, 'outBack');
+    loto.style.opacity = P.prog(t, T.end, T.end + 0.4);
+    loto.style.transform = `translateY(${(1 - k) * 30}px) scale(${0.8 + 0.2 * k})`;
+    P.blurIn(brandC, t, T.end + 0.12, { stagger: 0.05, dur: 0.5, blur: 12, dy: 10 });
+    sub.style.opacity = P.prog(t, T.end + 0.5, T.end + 0.9);
+    sub.querySelectorAll('i').forEach(i => i.style.transform = `scaleX(${P.ease(t, T.end + 0.5, T.end + 1.1, 'outCubic')})`);
+    P.maskIn(agendaW, t, T.end + 0.7, { stagger: 0.07, dur: 0.5 });
+    const pk = P.ease(t, T.end + 0.95, T.end + 1.45, 'outBack');
+    pill.style.transform = `scale(${0.6 + 0.4 * pk})`; pill.style.opacity = P.clamp(pk * 1.5);
+    lugar.style.opacity = P.prog(t, T.end + 1.3, T.end + 1.7);
+    lugar.style.transform = `translateY(${(1 - P.ease(t, T.end + 1.3, T.end + 1.8)) * 16}px)`;
+    // brillo dorado sobre el loto
+    fx.burst(t, T.end + 0.1, 540, 350, 14, 21, { speed: 260, size: 12, life: 1.2 });
+  }
+
+  // ----- gatito -----
+  const cIn = T.q + 0.35;
+  if (t >= cIn - 0.01) {
+    catWrap.style.display = 'block';
+    const k = P.ease(t, cIn, cIn + 0.75, 'outBack');
+    const y = 1920 - (1920 - 965) * k;
+    const sq = 0.05 * Math.sin(P.prog(t, cIn + 0.5, cIn + 1.0) * Math.PI) * (t < cIn + 1.0 ? 1 : 0);
+    const talkA = cIn + 0.95, talkB = cIn + 2.0, talk2A = T.end + 1.4, talk2B = T.end + 2.4;
+    const winkT = T.end + 2.55;
+    let face = 'normal';
+    if (P.Cat.blinkAt(t, [cIn + 0.9, T.end + 0.6])) face = 'blink';
+    if (t >= winkT && t < winkT + 0.6) face = 'wink';
+    if (t >= winkT + 0.6) face = 'happy';
+    const mouth = Math.max(P.Cat.talk(t, talkA, talkB), P.Cat.talk(t, talk2A, talk2B));
+    const tilt = 2 * Math.sin((t - cIn) * 2.2) * (mouth > 0 ? 1 : 0.4) + (t >= winkT ? -2 * P.env(t, winkT, winkT + 0.2, winkT + 0.5, winkT + 0.9) : 0);
+    cat.set(t, { x: 500, y, scale: 0.42, face, mouth, tilt, squash: sq });
+    if (t >= winkT) fx.burst(t, winkT, 790, 1065, 16, 33, { speed: 300, size: 14, hearts: true, heartColor: '#E8C987', life: 1.2 });
+    // globo
+    let txt = null, bt0 = 0;
+    if (t >= talkA - 0.1 && t < T.end - 0.25) { txt = '¡Te leo!'; bt0 = talkA - 0.1; }
+    if (t >= talk2A - 0.1) { txt = '¡Feliz Halloween!'; bt0 = talk2A - 0.1; }
+    if (txt) {
+      bubble.style.display = 'block';
+      const bk = P.ease(t, bt0, bt0 + 0.35, 'outBack');
+      P.typeText(bubbleTxt, txt, t, bt0 + 0.05, 20);
+      P.style(bubble, { left: 'auto', right: '470px', top: '1010px', transform: `scale(${bk})`, opacity: P.clamp(bk * 2), transformOrigin: '90% 100%' });
+      bubble.classList.toggle('tail-right', true);
+    } else bubble.style.display = 'none';
+  } else { catWrap.style.display = 'none'; bubble.style.display = 'none'; }
+
+  await P.waitAll();
+};
+
+window.renderCover = async function () { };
+</script></body></html>

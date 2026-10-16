@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  body { background: #2a1a12; }
+  #shade { position: absolute; inset: 0; z-index: 2; }
+  .emo { font-family: 'Noto Color Emoji'; font-style: normal; }
+  #pov { position: absolute; left: 70px; right: 70px; top: 282px; z-index: 10; color: #fff; text-align: center; }
+  #pov .k { font-family: 'Montserrat'; font-weight: 800; font-size: 34px; letter-spacing: .28em; color: #F1D9A6; }
+  #pov .s { font-family: 'Playfair Display'; font-size: 58px; line-height: 1.12; margin-top: 8px; text-shadow: 0 4px 24px rgba(0,0,0,.55); }
+  #pov .s em { color: #F1D9A6; }
+  #card { position: absolute; left: 60px; top: 470px; width: 960px; height: 780px; z-index: 8; border-radius: 46px; overflow: hidden;
+          background: rgba(251,247,241,.93); box-shadow: 0 30px 80px rgba(30,10,20,.45); transform-origin: 50% 70%; }
+  #head { position: absolute; left: 0; right: 0; top: 0; height: 112px; background: #5E2560; display: flex; align-items: center; padding: 0 34px; gap: 22px; color: #fff; }
+  #head .av { width: 70px; height: 70px; border-radius: 50%; background: #DDE3CF; display: flex; align-items: center; justify-content: center; font-size: 40px; }
+  #head .nm { font-family: 'Montserrat'; font-weight: 700; font-size: 36px; }
+  #head .st { font-family: 'Montserrat'; font-weight: 500; font-size: 24px; opacity: .8; margin-top: 2px; }
+  #msgs { position: absolute; left: 0; right: 0; top: 112px; bottom: 0; overflow: hidden;
+          background: radial-gradient(circle at 20% 10%, rgba(221,227,207,.55), transparent 60%), radial-gradient(circle at 90% 90%, rgba(217,183,122,.18), transparent 50%); }
+  .msg { position: absolute; max-width: 690px; padding: 22px 30px 24px; border-radius: 34px; font-family: 'Montserrat', 'Noto Color Emoji'; font-weight: 500;
+         font-size: 41px; line-height: 1.22; color: #2C2A2E; box-shadow: 0 6px 16px rgba(60,20,50,.12); }
+  .msg.a { left: 30px; background: #fff; border-bottom-left-radius: 10px; transform-origin: 0% 100%; }
+  .msg.y { right: 30px; background: #5E2560; color: #fff; border-bottom-right-radius: 10px; transform-origin: 100% 100%; }
+  .msg.big { font-weight: 800; letter-spacing: .01em; }
+  .msg .h { display: block; font-size: 22px; opacity: .55; text-align: right; margin-top: 6px; font-weight: 600; }
+  .typing { position: absolute; left: 30px; background: #fff; border-radius: 34px; border-bottom-left-radius: 10px; padding: 26px 30px; display: flex; gap: 12px;
+            box-shadow: 0 6px 16px rgba(60,20,50,.12); }
+  .typing i { width: 16px; height: 16px; border-radius: 50%; background: #9a8a96; display: block; }
+  .contact { padding: 0; overflow: hidden; width: 600px; }
+  .contact .top { display: flex; gap: 24px; align-items: center; padding: 26px 30px; }
+  .contact .lav { width: 92px; height: 92px; border-radius: 50%; background: #DDE3CF; display: flex; align-items: center; justify-content: center; }
+  .contact .lav img { width: 70px; }
+  .contact .n1 { font-weight: 800; font-size: 38px; color: #3B1640; }
+  .contact .n2 { font-weight: 500; font-size: 32px; color: #4F6B52; margin-top: 4px; }
+  .contact .btn { border-top: 2px solid #eee4ea; text-align: center; padding: 20px; font-weight: 700; font-size: 34px; color: #5E2560; }
+  #end { position: absolute; inset: 0; z-index: 12; color: #fff; }
+  .t { position: absolute; left: 60px; right: 60px; text-align: center; }
+  .lab { font-family: 'Montserrat'; font-weight: 600; font-size: 26px; letter-spacing: .34em; text-transform: uppercase; color: #F1D9A6; }
+  #flash { position: absolute; inset: 0; z-index: 40; background: #fff; opacity: 0; }
+  #catwrap { position: absolute; inset: 0; z-index: 20; }
+  .bubble { z-index: 22; }
+</style></head>
+<body><div id="stage"></div>
+<script src="../../engine/lib.js"></script>
+<script>
+const SP = '/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/clips/r02/';
+const st = document.getElementById('stage');
+const b = k => 0.3895 * k;
+const DUR = 17.2, TR = b(30), END = b(31);
+const te = new P.Seq(st, SP + 'te', { frames: 375 });
+const campo = new P.Seq(st, SP + 'campo', { frames: 180 });
+const shade = P.el('div', '', st); shade.id = 'shade';
+
+const pov = P.el('div', '', st); pov.id = 'pov';
+pov.innerHTML = '<div class="k">POV:</div><div class="s">descubres que en San Javier<br>hay <em>terapia floral</em></div>';
+const povW = P.splitWords(pov.querySelector('.s'));
+
+const card = P.el('div', '', st); card.id = 'card';
+card.innerHTML = '<div id="head"><div class="av"><span class="emo">🌸</span></div><div><div class="nm">Amiga</div><div class="st">en línea</div></div></div><div id="msgs"></div>';
+const msgsEl = card.querySelector('#msgs');
+const AREA_BOTTOM = 668 - 26;  // alto del area de mensajes menos margen
+
+const E = (s) => s.replace(/(\p{Extended_Pictographic}+)/gu, '<span class="emo">$1</span>');
+const MSGS = [
+  { k: 1, who: 'a', txt: 'amigaaa 😱' },
+  { k: 3, who: 'a', txt: '¿sabías que en San Javier hay terapia floral? 🌸', typing: true },
+  { k: 7, who: 'y', txt: '¿flores de Bach? 👀' },
+  { k: 10, who: 'a', txt: '¡sí! y atiende a domicilio 🏡', typing: true },
+  { k: 13, who: 'y', txt: '¿y si vivo lejos?' },
+  { k: 15, who: 'a', txt: 'también online, por videollamada 💻', typing: true },
+  { k: 18, who: 'y', txt: '¿y cuánto sale? 🙈' },
+  { k: 20, who: 'a', txt: '$10.000 y te llevas 2 frascos 🌸', typing: true },
+  { k: 24, who: 'y', txt: 'PÁSAME EL NÚMERO 😭', big: true },
+  { k: 26, who: 'a', contact: true, typing: true },
+];
+const GAP = 18;
+MSGS.forEach((m, i) => {
+  m.t = b(m.k);
+  m.el = P.el('div', 'msg ' + m.who + (m.big ? ' big' : '') + (m.contact ? ' contact' : ''), msgsEl);
+  if (m.contact) {
+    m.el.innerHTML = `<div class="top"><div class="lav"><img src="${P.ASSETS}logo/loto_color.png"></div><div><div class="n1">Prajim · Terapia floral</div><div class="n2">+56 9 8794 6066</div></div></div><div class="btn">Enviar mensaje</div>`;
+  } else {
+    const hh = `${String(19 + Math.floor((32 + i) / 60)).padStart(2, '0')}:${String((32 + i) % 60).padStart(2, '0')}`;
+    m.el.innerHTML = E(m.txt) + `<span class="h">${hh}${m.who === 'y' ? ' ✓✓' : ''}</span>`;
+  }
+  if (m.typing) {
+    m.ty = P.el('div', 'typing', msgsEl, '<i></i><i></i><i></i>');
+    m.tys = [...m.ty.querySelectorAll('i')];
+  }
+});
+
+const end = P.el('div', '', st); end.id = 'end';
+end.innerHTML = `
+  <div class="t lab" style="top:296px">Prajim · Terapia floral</div>
+  <div class="t" id="pin" style="top:350px"><svg width="70" height="92" viewBox="0 0 70 92"><path d="M35 2C17 2 3 16 3 34c0 24 32 56 32 56s32-32 32-56C67 16 53 2 35 2z" fill="#D9B77A" stroke="#fff" stroke-width="4"/><circle cx="35" cy="34" r="12" fill="#5E2560"/></svg></div>
+  <div class="t" id="sj" style="top:438px;font-family:'Playfair Display';font-size:142px;line-height:1;text-shadow:0 8px 36px rgba(0,0,0,.45)">San Javier</div>
+  <div class="t" id="tf" style="top:600px;font-family:'Playfair Display';font-style:italic;font-size:80px;color:#F1D9A6;text-shadow:0 6px 30px rgba(0,0,0,.45)">tiene terapia floral</div>
+  <div class="t" id="dom" style="top:712px;font-family:'Montserrat';font-weight:600;font-size:38px;letter-spacing:.02em;text-shadow:0 3px 16px rgba(0,0,0,.5)">a domicilio y online</div>
+  <div class="t" id="pillw" style="top:800px"><div class="wa-pill">${P.chatIcon('#fff')}<span>9 8794 6066</span></div></div>`;
+const sjC = P.splitChars(end.querySelector('#sj'));
+const tfW = P.splitWords(end.querySelector('#tf'));
+const pin = end.querySelector('#pin'), dom = end.querySelector('#dom'), pill = end.querySelector('.wa-pill');
+const lab = end.querySelector('.lab');
+
+const fx = new P.FX(st, 30);
+const catWrap = P.el('div', '', st); catWrap.id = 'catwrap';
+const cat = new P.Cat(catWrap);
+const bubble = P.el('div', 'bubble tail-right', st); const bubbleTxt = P.el('span', '', bubble);
+const flash = P.el('div', '', st); flash.id = 'flash';
+
+window.prepare = async function () {
+  for (const m of MSGS) { m.h = m.el.offsetHeight; if (m.ty) m.th = m.ty.offsetHeight; }
+};
+
+window.renderFrame = async function (t) {
+  fx.clear();
+  const inEnd = t >= END;
+  te.show(!inEnd); campo.show(inEnd);
+  if (!inEnd) {
+    te.set(t, 1);
+    te.img.style.filter = 'blur(5px) brightness(.82)';
+    te.img.style.transform = `scale(${1.08 + 0.03 * P.prog(t, 0, TR)})`;
+    shade.style.background = 'linear-gradient(180deg, rgba(40,15,25,.55), rgba(40,15,25,.15) 30%, rgba(40,15,25,.1) 70%, rgba(40,15,25,.5))';
+  } else {
+    campo.set(t - END, 1);
+    campo.img.style.filter = 'brightness(.88)';
+    campo.img.style.transform = `scale(${1.12 - 0.06 * P.ease(t, END, DUR, 'outSine')})`;
+    shade.style.background = 'linear-gradient(180deg, rgba(40,15,35,.62), rgba(40,15,35,.25) 45%, rgba(40,15,35,.15) 65%, rgba(40,15,35,.45))';
+  }
+
+  // ----- POV + chat -----
+  const chatOn = t < END;
+  pov.style.display = card.style.display = chatOn ? 'block' : 'none';
+  if (chatOn) {
+    P.maskIn(povW, t, 0.0, { stagger: 0.04, dur: 0.45, ease: 'outExpo' });
+    pov.querySelector('.k').style.opacity = P.prog(t, 0, 0.15);
+    const ck = P.ease(t, 0.0, 0.35, 'outBack');
+    // zoom hacia el contacto al final
+    const zk = P.ease(t, TR - 0.15, END, 'inExpo');
+    card.style.transform = `translateY(${(1 - ck) * 120 - zk * 120}px) scale(${(0.9 + 0.1 * ck) * (1 + zk * 1.8)})`;
+    card.style.opacity = P.clamp(ck * 2) * (1 - P.prog(t, END - 0.12, END));
+    card.style.filter = zk > 0.01 ? `blur(${zk * 18}px)` : 'none';
+    pov.style.opacity = 1 - zk;
+    // pila de mensajes (de abajo hacia arriba)
+    let acc = 0;
+    const items = [];
+    for (const m of MSGS) {
+      if (m.ty) {
+        const ts = m.t - 0.55;
+        const e = P.ease(t, ts, ts + 0.2, 'outCubic') * (1 - P.prog(t, m.t - 0.08, m.t));
+        items.push({ el: m.ty, h: m.th, e, ty: m, ts });
+      }
+      const e = P.ease(t, m.t, m.t + 0.28, 'outCubic');
+      items.push({ el: m.el, h: m.h, e, m });
+    }
+    for (let i = items.length - 1; i >= 0; i--) {
+      const it = items[i];
+      acc += (it.h + GAP) * it.e;
+      const top = AREA_BOTTOM - acc + GAP;
+      it.el.style.top = top + 'px';
+      if (it.e <= 0.001) { it.el.style.display = 'none'; continue; }
+      it.el.style.display = it.ty ? 'flex' : 'block';
+      const sk = it.m ? P.ease(t, it.m.t, it.m.t + 0.32, 'outBack') : it.e;
+      it.el.style.transform = `scale(${0.55 + 0.45 * sk})`;
+      it.el.style.opacity = P.clamp(it.e * 1.6);
+      if (it.ty) it.ty.tys.forEach((d, j) => d.style.transform = `translateY(${-8 * Math.max(0, Math.sin((t - it.ts) * 9 - j * 0.9))}px)`);
+    }
+    // destello al llegar el contacto
+    const ct = MSGS[MSGS.length - 1].t;
+    if (t > ct) fx.burst(t, ct + 0.05, 330, 1110, 12, 7, { speed: 220, size: 11, life: 0.9 });
+  }
+  flash.style.opacity = 0.75 * P.env(t, END - 0.1, END, END, END + 0.3);
+
+  // ----- final -----
+  end.style.display = inEnd ? 'block' : 'none';
+  if (inEnd) {
+    lab.style.opacity = P.prog(t, END + 0.05, END + 0.4);
+    const pk = P.ease(t, END + 0.05, END + 0.5, 'outBack');
+    pin.style.transform = `translateY(${(1 - pk) * -120}px)`; pin.style.opacity = P.clamp(pk * 2);
+    P.blurIn(sjC, t, END + 0.15, { stagger: 0.035, dur: 0.45, blur: 10, dy: 24 });
+    P.maskIn(tfW, t, END + 0.6, { stagger: 0.08, dur: 0.5 });
+    dom.style.opacity = P.prog(t, END + 1.0, END + 1.35);
+    dom.style.transform = `translateY(${(1 - P.ease(t, END + 1.0, END + 1.4)) * 18}px)`;
+    const wk = P.ease(t, b(34), b(34) + 0.45, 'outBack');
+    pill.style.transform = `scale(${0.5 + 0.5 * wk})`; pill.style.opacity = P.clamp(wk * 2);
+    fx.burst(t, END + 0.1, 540, 395, 12, 3, { speed: 240, size: 12, life: 1.0 });
+    fx.dust(t, 18, 5, { speed: 26, size: 3.4, alpha: 0.45, color: '255,236,190' });
+  }
+
+  // ----- gatito -----
+  const cIn = b(33);
+  if (t >= cIn) {
+    catWrap.style.display = 'block';
+    const k = P.ease(t, cIn, cIn + 0.6, 'outBack');
+    const y = 1920 - (1920 - 975) * k;
+    const tA = cIn + 0.65, tB = tA + 1.0, winkT = b(40);
+    let face = 'normal';
+    if (P.Cat.blinkAt(t, [cIn + 0.45, b(38)])) face = 'blink';
+    if (t >= winkT && t < winkT + 0.5) face = 'wink';
+    if (t >= winkT + 0.5) face = 'happy';
+    const mouth = P.Cat.talk(t, tA, tB);
+    cat.set(t, { x: 575, y, scale: 0.4, face, mouth, tilt: 2 * Math.sin((t - cIn) * 2.4) * (mouth > 0 ? 1 : 0.5), squash: 0.05 * Math.sin(P.prog(t, cIn + 0.4, cIn + 0.8) * Math.PI) });
+    if (t >= winkT) fx.burst(t, winkT, 830, 1090, 14, 9, { speed: 260, size: 13, hearts: true, heartColor: '#E46A8C', life: 1.1 });
+    if (t >= tA - 0.1) {
+      bubble.style.display = 'block';
+      const bk = P.ease(t, tA - 0.1, tA + 0.25, 'outBack');
+      P.typeText(bubbleTxt, '¡Te espero!', t, tA - 0.05, 18);
+      P.style(bubble, { right: '460px', top: '1030px', transform: `scale(${bk})`, opacity: P.clamp(bk * 2), transformOrigin: '90% 100%' });
+    } else bubble.style.display = 'none';
+  } else { catWrap.style.display = 'none'; bubble.style.display = 'none'; }
+
+  await P.waitAll();
+};
+</script></body></html>

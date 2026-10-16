@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<link rel="stylesheet" href="../../engine/lib.css">
+<style>
+  body { background: #0b0409; }
+  #bg { position: absolute; inset: 0; background-size: cover; filter: brightness(.85); }
+  #shade { position: absolute; inset: 0; background: radial-gradient(ellipse 65% 42% at 50% 52%, rgba(12,4,12,.55), rgba(12,4,12,.1) 75%), linear-gradient(180deg, rgba(10,3,10,.75), rgba(10,3,10,.1) 35%, rgba(10,3,10,.1) 65%, rgba(10,3,10,.8)); }
+  .t { position: absolute; left: 60px; right: 60px; text-align: center; color: #FBF2E4; }
+  .lab { font-family: 'Montserrat'; font-weight: 600; font-size: 30px; letter-spacing: 0.34em; color: #E3C58E; text-transform: uppercase; }
+  .h { font-family: 'Playfair Display'; text-shadow: 0 8px 40px rgba(0,0,0,.7); }
+  .h em { color: #E8C987; font-style: italic; }
+  #plate { position: absolute; left: 300px; top: 760px; width: 480px; height: 608px; filter: drop-shadow(0 0 8px rgba(227,197,142,.6)); }
+  #plate svg { width: 100%; height: 100%; overflow: visible; }
+  #arch { position: absolute; left: 250px; top: 730px; width: 580px; height: 680px; }
+  .marca { font-family: 'Cormorant Garamond'; font-weight: 600; letter-spacing: .3em; font-size: 40px; color: #FBF2E4; }
+</style></head>
+<body><div id="stage">
+  <div id="bg"></div><div id="shade"></div>
+  <div id="arch"><svg viewBox="0 0 580 680" style="width:100%;height:100%;overflow:visible"><path d="M20 670 L20 290 A270 270 0 0 1 560 290 L560 670" fill="none" stroke="#E3C58E" stroke-width="2.4" opacity=".7"/><path d="M36 670 L36 290 A254 254 0 0 1 544 290 L544 670" fill="none" stroke="#E3C58E" stroke-width="1.2" opacity=".45"/></svg></div>
+  <div id="plate"></div>
+  <div class="t lab" style="top:300px">Especial Halloween</div>
+  <div class="t h" style="top:356px;font-size:210px;line-height:1"><em style="font-style:normal">5</em> flores</div>
+  <div class="t h" style="top:575px;font-size:122px;line-height:1.05">para el <em>miedo</em></div>
+  <div class="t marca" style="top:1440px">P R A J I M</div>
+  <div class="t lab" style="top:1500px;font-size:24px;color:#E3C58E">Terapia floral · San Javier y online</div>
+</div>
+<script src="../../engine/lib.js"></script><script src="../../engine/botanica.js"></script>
+<script>
+document.getElementById('bg').style.backgroundImage = "url('/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/clips/r01/rosa/00090.jpg')";
+const c = B.mount(document.getElementById('plate'), 'rockRose');
+window.renderFrame = async t => { c.draw(99, 0); const im = new Image(); im.src = "/tmp/claude-0/-home-user-trabajo-/e45aeb62-b827-5979-8a06-dcd1bae0709b/scratchpad/clips/r01/rosa/00090.jpg"; await im.decode(); };
+</script></body></html>
